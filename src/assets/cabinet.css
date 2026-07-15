@@ -1,0 +1,627 @@
+/* Full-viewport letterbox: the fixed-size stage is scaled to fit. */
+.stage-fit {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+.cabinet {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1280px;
+  height: 720px;
+  transform-origin: center center;
+  background: #0b0703;
+  font-family: "Cinzel", "Trebuchet MS", serif;
+  color: #f6e6bf;
+  overflow: hidden;
+}
+.cabinet .pixi-slot { position: absolute; inset: 0; display: block !important; max-width: none !important; width: 100% !important; height: 100% !important; justify-content: initial !important; }
+.cabinet .pixi-slot canvas { width: 100% !important; height: 100% !important; max-width: none !important; display: block; margin: 0 !important; }
+
+/* shared ornate gold plaque — polished wood panel with a gold frame */
+.plaque {
+  box-sizing: border-box;
+  background:
+    linear-gradient(rgba(28,17,6,.12), rgba(10,6,2,.34)),
+    url("./img/scene/wood.png");
+  background-size: cover; background-repeat: no-repeat; background-position: center;
+  border: 2px solid #e2bf68;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1px #6b4e1a,
+    inset 0 1px 0 rgba(255,233,168,.4),
+    inset 0 0 14px rgba(0,0,0,.55),
+    0 4px 12px rgba(0,0,0,.5);
+  padding: 6px 12px;
+  text-align: center;
+}
+.plaque .label { font-size: 11px; letter-spacing: 1px; color: #e7c977; text-transform: uppercase; }
+.plaque .value { font-size: 18px; font-weight: 700; color: #ffe9a8; text-shadow: 0 1px 2px #000; }
+
+/* jackpot bar — color-coded ornate pills */
+.jackpot-bar { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 9px; z-index: 5; }
+.jackpot {
+  min-width: 132px; padding: 0; overflow: hidden; border-radius: 8px;
+  border: 2px solid #caa24a;
+  background: linear-gradient(#1c1206, #0b0602);
+  box-shadow: 0 0 0 1px #6b4e1a, 0 3px 9px rgba(0,0,0,.5), inset 0 0 10px rgba(0,0,0,.6);
+}
+.jackpot .tier {
+  display: block; font-weight: 800; letter-spacing: 1.5px; font-size: 10px;
+  padding: 2px 0; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.7);
+  border-bottom: 1px solid rgba(0,0,0,.45);
+}
+.jackpot .value { padding: 3px 0 4px; font-size: 14px; }
+.jackpot.mini  .tier { background: linear-gradient(#54a848, #2c5f24); }
+.jackpot.minor .tier { background: linear-gradient(#3f86d1, #234f86); }
+.jackpot.major .tier { background: linear-gradient(#8a5cc0, #472a68); }
+.jackpot.grand .tier { background: linear-gradient(#d24d34, #7a2418); }
+.jackpot.mini  { border-color: #54a848; }
+.jackpot.minor { border-color: #3f86d1; }
+.jackpot.major { border-color: #8a5cc0; }
+.jackpot.grand { border-color: #d24d34; }
+
+/* game logo wordmark, seated in the header band on the reel-frame top rail */
+.game-logo {
+  position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+  width: 200px; height: auto; z-index: 7; pointer-events: none;
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,.8));
+}
+
+/* round icon controls (mute / fullscreen) top-right */
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(#241804, #120b03);
+  border: 1px solid #caa24a; color: #e7c977;
+  box-shadow: inset 0 1px 0 rgba(255,233,168,.25);
+  transition: filter .12s ease;
+}
+.icon-btn:hover { filter: brightness(1.3); }
+
+/* how-to-play + sound + fullscreen grouped at the top-right corner */
+.top-controls {
+  position: absolute; top: 0; right: 14px; left: auto; width: max-content;
+  z-index: 8; display: flex; gap: 8px; justify-content: flex-end;
+}
+
+/* balance + lines */
+.balance-panel { position: absolute; top: 0; left: 16px; z-index: 5; width: 150px; }
+.lines-marker { position: absolute; z-index: 6; top: 44%; text-align: center; width: 40px; }
+.lines-marker.left { left: 188px; }
+.lines-marker.right { right: 188px; }
+.lines-marker .n { font-size: 20px; font-weight: 800; color: #ffe9a8; text-shadow: 0 1px 3px #000, 0 0 6px rgba(0,0,0,.9); }
+.lines-marker .t { font-size: 9px; letter-spacing: 1px; color: #e7c977; text-shadow: 0 1px 3px #000; }
+
+/* feature side panels */
+.side-panel { position: absolute; z-index: 5; width: 132px; text-align: center; }
+.side-panel.left { left: 16px; top: 300px; }
+.side-panel.right { right: 16px; top: 250px; }
+.buy-spins .cta {
+  margin-top: 6px; padding: 8px; width: 100%; border-radius: 8px;
+  background: linear-gradient(#20340f, #0e1a06);
+  border: 1px solid #6bbf4a; color: #bff29a; font-weight: 700; cursor: pointer;
+  transition: filter .12s ease;
+}
+.buy-spins .cta:hover:not(:disabled) { filter: brightness(1.25); }
+.buy-spins .cta:disabled { opacity: .5; cursor: not-allowed; }
+
+/* feature splash — big centre-stage callout for scatter free spins / wild wins */
+.feature-splash {
+  position: absolute; top: 22%; left: 50%; transform: translateX(-50%);
+  z-index: 16; pointer-events: none; text-align: center; white-space: nowrap;
+  padding: 14px 40px; border-radius: 18px;
+  background: linear-gradient(#3a2708, #180f02);
+  border: 3px solid #ffcf5a;
+  box-shadow: 0 0 30px rgba(255,190,60,.75), inset 0 0 18px rgba(0,0,0,.4);
+  animation: featurePop .5s cubic-bezier(.2,1.5,.4,1) both, featureGlow 1.3s ease-in-out .5s infinite;
+}
+.feature-splash-title {
+  font-size: 44px; font-weight: 900; letter-spacing: 2px; color: #ffe07a;
+  text-shadow: 0 2px 0 #a06a15, 0 3px 0 #7a520e, 0 5px 12px rgba(0,0,0,.6);
+}
+.feature-splash-sub {
+  margin-top: 4px; font-size: 16px; letter-spacing: 3px; font-weight: 800;
+  text-transform: uppercase; color: #7dff5a; text-shadow: 0 1px 3px #000;
+}
+@keyframes featurePop {
+  0%   { transform: translateX(-50%) scale(.5); opacity: 0; }
+  60%  { transform: translateX(-50%) scale(1.12); }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+@keyframes featureGlow {
+  0%, 100% { box-shadow: 0 0 22px rgba(255,190,60,.55), inset 0 0 18px rgba(0,0,0,.4); }
+  50%      { box-shadow: 0 0 40px rgba(255,190,60,.95), inset 0 0 18px rgba(0,0,0,.4); }
+}
+.cabinet.portrait .feature-splash { padding: 12px 30px; }
+.cabinet.portrait .feature-splash-title { font-size: 38px; }
+
+/* free-spins round banner — top-center header overlay, just under the logo */
+.free-spins-banner {
+  position: absolute; top: 92px; left: 50%; transform: translateX(-50%);
+  z-index: 7; display: flex; align-items: baseline; gap: 10px;
+  padding: 8px 22px; border-radius: 999px;
+  background: linear-gradient(#3a2708, #180f02);
+  border: 2px solid #ffcf5a; box-shadow: 0 0 18px rgba(255,190,60,.55);
+  animation: fsPulse 1.4s ease-in-out infinite;
+}
+.free-spins-banner .fs-label { font-weight: 800; letter-spacing: 2px; color: #ffe9a8; text-shadow: 0 1px 3px #000; }
+.free-spins-banner .fs-count { font-weight: 800; font-size: 20px; color: #7dff5a; text-shadow: 0 1px 3px #000; }
+@keyframes fsPulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(255,190,60,.45); }
+  50% { box-shadow: 0 0 26px rgba(255,190,60,.85); }
+}
+/* decorative mini prize-wheel on the right panel */
+.mini-wheel {
+  width: 96px; height: 96px; margin: 10px auto 8px; border-radius: 50%;
+  border: 4px solid #caa24a; position: relative;
+  background: conic-gradient(
+    #54a848 0 72deg, #d24d34 72deg 144deg, #8a5cc0 144deg 216deg,
+    #3f86d1 216deg 288deg, #d4af37 288deg 360deg);
+  box-shadow: inset 0 0 12px rgba(0,0,0,.6), 0 0 12px rgba(255,190,60,.35);
+  animation: wheelSpin 9s linear infinite;
+}
+.mini-wheel-hub {
+  position: absolute; top: 50%; left: 50%; width: 22px; height: 22px;
+  transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(#ffe9a8, #caa24a); border: 2px solid #8a6a1e;
+}
+@keyframes wheelSpin { to { transform: rotate(360deg); } }
+
+/* collect-3 progress pips on the right panel */
+.bonus-pips { display: flex; justify-content: center; gap: 10px; margin: 10px auto; }
+.bonus-pips .pip {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid #caa24a; background: radial-gradient(#241706, #120b03);
+  box-shadow: inset 0 0 6px rgba(0,0,0,.7);
+}
+.bonus-pips .pip.lit {
+  background: radial-gradient(#ffe9a8, #d4af37);
+  box-shadow: 0 0 10px rgba(255,205,90,.9);
+}
+
+/* Safari Bonus wheel overlay */
+.bonus-overlay {
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.7);
+}
+.bonus-modal {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 22px 30px; border-radius: 16px;
+  background: linear-gradient(#2a1c08, #120b03); border: 3px solid #caa24a;
+  box-shadow: 0 0 40px rgba(255,190,60,.5);
+}
+.bonus-title { margin: 0; color: #ffe9a8; letter-spacing: 3px; text-shadow: 0 2px 4px #000; }
+.wheel-wrap { position: relative; width: 340px; height: 340px; }
+.wheel-canvas { display: block; width: 340px; height: 340px; }
+
+/* gold rim art (bulbs, leaves, top pointer) — its square corners are pure glow,
+   so mask them away with an inscribed circle; ring/leaves/pointer are kept. */
+.wheel-rim {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 98%, transparent 100%);
+          mask-image: radial-gradient(circle closest-side, #000 98%, transparent 100%);
+}
+
+/* colored segment disc — oversized so it fills right up under the gold ring
+   (the rim art sits above it on z-index and masks any overflow, so no gap) */
+.wheel-disc {
+  position: absolute; inset: 8%; border-radius: 50%; z-index: 2;
+  transition: transform 4s cubic-bezier(.16,.84,.3,1);
+}
+/* soft shadow grooves at each 45° wedge boundary — reads as separation without
+   a hard border. Rotates with the disc so the shadows track the wedges. */
+.wheel-disc::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg,
+  rgb(0 0 0 / 0.26) 0deg, rgba(0,0,0,0) 7deg,
+    rgba(0,0,0,0) 38deg, rgb(0 0 0 / 0.2) 45deg);
+}
+
+/* fixed dome lighting (light from top) + gentle center/edge shading = 3D bevel */
+.wheel-gloss {
+  position: absolute; inset: 8%; border-radius: 50%; z-index: 2; pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 38%,
+      rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 42%),
+    radial-gradient(circle,
+      rgba(0,0,0,.30) 12%, rgba(0,0,0,0) 40%,
+      rgba(0,0,0,0) 82%, rgba(0,0,0,.20) 100%);
+}
+
+/* upright, orbiting number labels (positioned inline in the component) —
+   big ivory numeral + small suffix, dark outline, like the reference art */
+.wheel-labels { position: absolute; inset: 8%; z-index: 3; pointer-events: none; }
+.wheel-seg-label {
+  position: absolute; top: 50%; left: 50%; transform-origin: center;
+  display: flex; align-items: baseline; gap: 1px; white-space: nowrap;
+  font-family: "Cinzel", "Trebuchet MS", serif; font-weight: 800;
+  color: #f7ecc9;
+  -webkit-text-stroke: 1.1px #0a0704; paint-order: stroke fill;
+  text-shadow: 0 2px 3px rgba(0,0,0,.7);
+}
+.wheel-seg-label .lbl-main { font-size: 25px; letter-spacing: .5px; font-style: normal; }
+.wheel-seg-label .lbl-suf  { font-size: 14px; font-style: normal; }
+
+/* paw medallion hub — clip the asset's square glow to a clean circle */
+.wheel-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 31%; height: 31%; border-radius: 50%; overflow: hidden; z-index: 4;
+  box-shadow: 0 3px 10px rgba(0,0,0,.6);
+}
+.wheel-center img {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 132%; height: 132%; object-fit: contain;
+}
+.bonus-spinning { color: #e7c977; font-weight: 700; letter-spacing: 1px; }
+.bonus-result { color: #ffe9a8; font-size: 20px; }
+.bonus-result b { color: #7dff5a; }
+.bonus-collect {
+  padding: 10px 28px; border-radius: 10px; cursor: pointer;
+  background: linear-gradient(#3f8d1f, #1c4a0d); border: 2px solid #6bbf4a;
+  color: #eafff0; font-weight: 800; letter-spacing: 1px;
+}
+.bonus-collect:hover { filter: brightness(1.2); }
+.side-panel .headline { font-weight: 800; letter-spacing: 1px; color: #ffe9a8; }
+.side-panel .sub { font-size: 11px; color: #e7c977; }
+
+/* bottom control bar */
+.control-bar {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 6;
+  display: flex; align-items: center; justify-content: center; gap: 16px; padding: 13px 22px;
+  background:
+    linear-gradient(rgba(28,17,6,.42), rgba(12,7,2,.6)),
+    url("./img/scene/wood.png");
+  background-size: cover; background-repeat: no-repeat; background-position: center;
+  border-top: 3px solid #d8b45a;
+  box-shadow: inset 0 2px 0 rgba(255,233,168,.4), 0 -8px 22px rgba(0,0,0,.55);
+}
+.control-bar .menu-btn { width: 44px; height: 40px; border-radius: 8px; background: linear-gradient(#241804, #120b03); border: 1px solid #caa24a; color: #e7c977; font-size: 18px; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,233,168,.25); }
+
+/* How to Play modal */
+.htp-overlay {
+  position: absolute; inset: 0; z-index: 30; padding: 16px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.78);
+}
+.htp-modal {
+  position: relative; width: min(580px, 95%); max-height: 90%;
+  overflow-y: auto; padding: 22px 24px 24px;
+  background:
+    linear-gradient(rgba(30,18,6,.72), rgba(10,6,2,.82)),
+    url("./img/scene/wood.png");
+  background-size: cover; background-position: center;
+  border: 3px solid #e2bf68; border-radius: 16px;
+  box-shadow: 0 0 0 1px #6b4e1a, 0 0 50px rgba(255,190,60,.45), 0 12px 40px rgba(0,0,0,.7);
+  color: #f6e6bf;
+}
+.htp-modal::-webkit-scrollbar { width: 9px; }
+.htp-modal::-webkit-scrollbar-thumb { background: #8a6a1e; border-radius: 5px; }
+.htp-close {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; z-index: 2;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  background: linear-gradient(#3a2408, #180d02); border: 1px solid #e2bf68;
+  color: #ffe9a8; border-radius: 8px; transition: filter .12s ease;
+}
+.htp-close:hover { filter: brightness(1.35); }
+.htp-title {
+  margin: 0; text-align: center; letter-spacing: 4px; font-size: 30px; font-weight: 800;
+  background: linear-gradient(#fff3bf, #ffd85a 52%, #ffc93a 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: .6px #b07e1e;
+  filter: drop-shadow(0 1px 0 #c8901f) drop-shadow(0 2px 3px rgba(0,0,0,.55));
+}
+.htp-rule {
+  height: 3px; margin: 8px auto 12px; width: 70%;
+  background: linear-gradient(90deg, transparent, #e2bf68, transparent);
+}
+.htp-lead { margin: 0 0 16px; text-align: center; color: #f0dca8; font-size: 15px; line-height: 1.5; }
+
+.htp-card {
+  margin-bottom: 12px; padding: 12px 14px 12px 16px;
+  background: linear-gradient(rgba(255,220,150,.06), rgba(0,0,0,.28));
+  border: 1px solid rgba(210,180,90,.35); border-left: 3px solid #e2bf68;
+  border-radius: 10px;
+}
+.htp-card h3 { margin: 0 0 6px; color: #ffcf5a; font-size: 16px; letter-spacing: .5px; display: flex; align-items: center; gap: 8px; }
+.htp-ic { color: #ffcf5a; flex-shrink: 0; }
+.htp-note-inline { font-size: 11px; color: #b79a55; letter-spacing: 0; font-weight: 400; }
+.htp-card p, .htp-card li { font-size: 14px; line-height: 1.5; color: #eaddc0; }
+.htp-card ul { margin: 4px 0 0; padding-left: 18px; }
+.htp-card li { margin-bottom: 3px; }
+.htp-card b { color: #ffe9a8; }
+
+/* paytable */
+.htp-paytable { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 14px; }
+.htp-paytable th { color: #ffcf5a; font-weight: 700; text-align: center; padding: 4px 6px; border-bottom: 1px solid rgba(210,180,90,.4); }
+.htp-paytable th:first-child { text-align: left; }
+.htp-paytable td { padding: 4px 6px; text-align: center; color: #ffe4a0; border-bottom: 1px solid rgba(120,90,30,.25); }
+.htp-paytable td.sym { text-align: left; color: #eaddc0; }
+.htp-paytable tr:last-child td { border-bottom: none; }
+
+/* jackpot chips */
+.htp-jackpots { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.htp-jackpots .jp {
+  flex: 1 1 45%; text-align: center; padding: 5px 8px; border-radius: 6px;
+  font-size: 12px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  border: 1px solid rgba(0,0,0,.35);
+}
+.htp-jackpots .mini  { background: linear-gradient(#54a848, #2c5f24); }
+.htp-jackpots .minor { background: linear-gradient(#3f86d1, #234f86); }
+.htp-jackpots .major { background: linear-gradient(#8a5cc0, #472a68); }
+.htp-jackpots .grand { background: linear-gradient(#d24d34, #7a2418); }
+
+.htp-note {
+  margin: 16px 0 0; padding-top: 12px; border-top: 1px solid #6b4e1a;
+  font-size: 12.5px; color: #c2a86a; text-align: center;
+}
+.bet-row { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.bet-block { display: flex; flex-direction: column; align-items: center; }
+.bet-block .label { font-size: 10px; letter-spacing: 1px; color: #e7c977; }
+.bet-stepper { display: flex; align-items: center; gap: 8px; }
+.bet-stepper button { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(#241804, #120b03); border: 1px solid #caa24a; color: #ffe9a8; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,233,168,.25); }
+.bet-stepper button:hover:not(:disabled) { filter: brightness(1.3); }
+.bet-stepper button:disabled { opacity: .45; cursor: not-allowed; }
+.bet-stepper .val { min-width: 54px; text-align: center; font-weight: 700; color: #ffe9a8; }
+
+/* quick bet shortcuts — compact gold coin-chips next to the stepper */
+.bet-shortcuts { display: flex; flex: 0 0 auto; width: max-content; gap: 6px; align-items: center; }
+.bet-shortcuts button {
+  width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+  background: radial-gradient(circle at 50% 32%, #3a2810, #1a0f04 75%);
+  border: 2px solid #caa24a; color: #ffdf9a;
+  font-size: 12.5px; font-weight: 800; letter-spacing: .2px;
+  box-shadow: inset 0 1px 0 rgba(255,233,168,.3), 0 2px 5px rgba(0,0,0,.45);
+  transition: filter .12s ease, transform .08s ease;
+}
+.bet-shortcuts button:hover:not(:disabled) { filter: brightness(1.35); }
+.bet-shortcuts button:active:not(:disabled) { transform: scale(.94); }
+.bet-shortcuts button.on {
+  background: radial-gradient(circle at 50% 32%, #fff2c8, #ecc768 55%, #b8892a);
+  color: #201400; border-color: #ffe9a8;
+  box-shadow: 0 0 12px rgba(255,205,90,.8), inset 0 1px 2px rgba(255,255,255,.5);
+}
+.bet-shortcuts button:disabled { opacity: .5; cursor: not-allowed; }
+
+.total-bet, .win-box { min-width: 130px; }
+
+/* premium SPIN button: beveled metallic gold ring + glossy green core + chevrons */
+.spin-btn {
+  position: relative; flex-shrink: 0; box-sizing: border-box;
+  width: 108px; height: 108px; border-radius: 50%; margin: 0 16px;
+  padding: 12px; border: none; cursor: pointer;
+  background:
+    radial-gradient(circle at 50% 30%, #fff3cc 0%, #ecc768 24%, #caa24a 46%, #9a7a2c 72%, #5f4614 100%);
+  box-shadow:
+    0 0 0 2px #4a380f, 0 6px 16px rgba(0,0,0,.6),
+    inset 0 3px 4px rgba(255,255,255,.6), inset 0 -4px 7px rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  transition: filter .12s ease, transform .08s ease;
+  animation: spinAttract 2.1s ease-in-out infinite;
+}
+@keyframes spinAttract {
+  0%, 100% { box-shadow: 0 0 0 2px #4a380f, 0 5px 14px rgba(0,0,0,.6), 0 0 16px rgba(255,190,60,.3), inset 0 2px 3px rgba(255,255,255,.55), inset 0 -3px 6px rgba(0,0,0,.4); }
+  50%      { box-shadow: 0 0 0 2px #4a380f, 0 5px 16px rgba(0,0,0,.6), 0 0 34px rgba(255,205,90,.7), inset 0 2px 3px rgba(255,255,255,.6), inset 0 -3px 6px rgba(0,0,0,.4); }
+}
+.spin-btn::before, .spin-btn::after {
+  content: "›"; position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: 32px; font-weight: 900; color: #ffe9a8;
+  text-shadow: 0 0 8px rgba(255,190,70,.9), 0 1px 3px #000; pointer-events: none;
+}
+.spin-btn::before { content: "‹"; left: -22px; }
+.spin-btn::after { right: -22px; }
+.spin-core {
+  position: relative; overflow: hidden;
+  width: 84px; height: 84px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 26%, #9bf25f 0%, #4fb223 40%, #2c7d16 66%, #164009 100%);
+  box-shadow:
+    inset 0 -7px 14px rgba(0,0,0,.55), inset 0 6px 12px rgba(255,255,255,.35),
+    0 0 0 2px #123c08, 0 0 0 4px #3c8a1e;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #f2ffe8; text-shadow: 0 1px 2px rgba(0,0,0,.75);
+}
+/* glossy specular highlight on the core */
+.spin-core::before {
+  content: ""; position: absolute; top: 8%; left: 18%; right: 18%; height: 38%;
+  border-radius: 50%; z-index: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(255,255,255,.6), rgba(255,255,255,0) 70%);
+  pointer-events: none;
+}
+.spin-core .spin-label, .spin-core small { position: relative; z-index: 1; }
+.spin-label { font-weight: 900; font-size: 23px; letter-spacing: 1px; line-height: 1; }
+.spin-btn:hover:not(.spinning) { filter: brightness(1.08); }
+.spin-btn:active:not(.spinning) { transform: scale(.95); }
+.spin-btn.spinning { filter: grayscale(.5) brightness(.7); animation: none; }
+.spin-btn small { display: block; margin-top: 3px; font-size: 7.5px; letter-spacing: .5px; line-height: 1.15; text-align: center; }
+.win-box .value { color: #ffe9a8; font-size: 20px; font-weight: 800; }
+.chip-btn { padding: 9px 14px; border-radius: 8px; background: linear-gradient(#241804, #130c03); border: 1px solid #caa24a; color: #e7c977; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: inset 0 1px 0 rgba(255,233,168,.22); transition: filter .12s ease; }
+.chip-btn:hover { filter: brightness(1.2); }
+.chip-btn.on {
+  background: linear-gradient(#caa24a, #8a6a1e); color: #140d03; font-weight: 800;
+  box-shadow: 0 0 12px rgba(255,205,90,.7);
+}
+/* autoplay count picker */
+.auto-wrap { position: relative; }
+.auto-menu {
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; padding: 8px; z-index: 8;
+  background: linear-gradient(#2a1c08, #120b03); border: 2px solid #caa24a;
+  border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.6);
+}
+.auto-menu button {
+  min-width: 40px; padding: 8px 10px; border-radius: 6px; cursor: pointer;
+  background: #140d03; border: 1px solid #caa24a; color: #ffe9a8; font-weight: 700;
+}
+.auto-menu button:hover { background: #26180a; }
+.control-bar .clock { color: #b79a55; font-size: 13px; padding-left: 4px; }
+
+/* ============================================================
+   Portrait / mobile layout (cabinet is 720 x 1280).
+   Reels fill the width (Pixi); chrome stacks above & below.
+   ============================================================ */
+.cabinet.portrait .game-logo { top: 0; width: 258px; }
+.cabinet.portrait .balance-panel { left: 14px; width: 130px; z-index: 8; }
+
+.cabinet.portrait .jackpot-bar { top: 186px; gap: 7px; }
+.cabinet.portrait .jackpot { min-width: 0; width: 152px; }
+.cabinet.portrait .jackpot .tier { font-size: 10px; letter-spacing: 1px; padding: 2px 0; }
+.cabinet.portrait .jackpot .value { font-size: 14px; padding: 3px 0 5px; }
+
+.cabinet.portrait .lines-marker { top: 45%; }
+.cabinet.portrait .lines-marker.left { left: 9px; }
+.cabinet.portrait .lines-marker.right { right: 9px; }
+
+/* Portrait logo is taller, so drop the banner a little to sit just beneath it
+   (above the jackpot bar at 186), matching the landscape "under the logo" look. */
+.cabinet.portrait .free-spins-banner { top: 115px; }
+
+/* feature row just below the reels: BUY (left) · WIN (centre) · COLLECT (right) */
+/* Portrait control-bar (z-index 6) is a full-width transparent block that
+   overlaps these panels, so lift them above it to keep BUY FREE SPINS tappable. */
+.cabinet.portrait .side-panel { top: 902px; width: 168px; z-index: 7; }
+.cabinet.portrait .side-panel.left { left: 16px; }
+.cabinet.portrait .side-panel.right { right: 16px; }
+.cabinet.portrait .side-panel .headline { font-size: 13px; margin-bottom: 2px; }
+.cabinet.portrait .side-panel .sub { font-size: 10px; }
+.cabinet.portrait .buy-spins .cta { margin-top: 4px; padding: 6px; }
+.cabinet.portrait .mini-wheel { display: none; }       /* too tall for the compact row */
+.cabinet.portrait .bonus-pips { margin: 6px auto 4px; gap: 8px; }
+.cabinet.portrait .bonus-pips .pip { width: 16px; height: 16px; }
+
+/* bottom control zone — transparent, children placed absolutely */
+.cabinet.portrait .control-bar {
+  top: 900px; bottom: auto; height: 380px; padding: 0;
+  background: none; border-top: none; box-shadow: none; display: block;
+}
+.cabinet.portrait .control-bar .clock { display: none; }
+
+.cabinet.portrait .win-box {
+  position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+  min-width: 190px; padding: 8px 16px;
+  background: linear-gradient(#3a1c52, #1b0f2c); border-color: #a875d6;
+}
+.cabinet.portrait .win-box .label { color: #d8b6f2; }
+.cabinet.portrait .win-box .value { font-size: 24px; }
+
+.cabinet.portrait .spin-btn { position: absolute; top: 96px; left: 50%; transform: translateX(-50%); margin: 0; }
+.cabinet.portrait .spin-btn:active:not(.spinning) { transform: translateX(-50%) scale(.96); }
+.cabinet.portrait .control-bar > .chip-btn { position: absolute; top: 128px; left: 64px; }   /* TURBO */
+.cabinet.portrait .control-bar .auto-wrap { position: absolute; top: 128px; right: 64px; }   /* AUTO */
+.cabinet.portrait .control-bar > .chip-btn,
+.cabinet.portrait .control-bar .auto-wrap .chip-btn {
+  flex-direction: column; gap: 2px; width: 62px; height: 62px; border-radius: 50%;
+  justify-content: center; font-size: 11px;
+}
+
+/* BET stepper + shortcut chips as one centered row (enlarged for phones) */
+.cabinet.portrait .bet-row {
+  position: absolute; top: 262px; left: 50%; transform: translateX(-50%); gap: 18px;
+}
+.cabinet.portrait .bet-block .label { font-size: 14px; margin-bottom: 4px; }
+.cabinet.portrait .bet-block .bet-stepper { gap: 12px; }
+.cabinet.portrait .bet-block .bet-stepper button { width: 48px; height: 48px; font-size: 22px; }
+.cabinet.portrait .bet-block .bet-stepper .val { min-width: 84px; font-size: 22px; }
+.cabinet.portrait .bet-shortcuts { gap: 12px; }
+.cabinet.portrait .bet-shortcuts button { width: 60px; height: 60px; font-size: 19px; border-width: 3px; }
+
+/* ============================================================
+   Win celebration overlay (radiant rays + 3D title + plaque)
+   ============================================================ */
+.win-overlay {
+  position: absolute; inset: 0; z-index: 15; pointer-events: none;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  /* gently dim + warm the reels so the celebration reads as the focus */
+  background: radial-gradient(circle at 50% 46%, rgba(60,32,0,.12) 26%, rgba(3,4,2,.55) 78%);
+}
+.win-overlay.pop-in { animation: winFadeIn .3s ease-out; }
+.win-overlay.fade-out { animation: winFadeOut .4s ease-in forwards; }
+@keyframes winFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes winFadeOut { to { opacity: 0; } }
+
+.win-rays {
+  position: absolute; left: 50%; top: 50%;
+  width: 190%; max-width: 1650px; aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  opacity: .7; mix-blend-mode: screen;
+  animation: winRaySpin 32s linear infinite;
+}
+@keyframes winRaySpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+.win-glow {
+  position: absolute; left: 50%; top: 50%;
+  width: 860px; height: 860px;
+  background: radial-gradient(circle, rgba(255,220,130,.65), rgba(255,150,40,.22) 40%, transparent 62%);
+  mix-blend-mode: screen;
+  animation: winGlowPulse 1.6s ease-in-out infinite;
+}
+@keyframes winGlowPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: .85; }
+  50%      { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+}
+
+.win-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+}
+
+/* 3D gold title: metallic gradient face with a specular seam + chunky beveled
+   extrusion for real depth */
+.win-title {
+  position: relative; display: inline-block;
+  font-family: "Cinzel", "Trebuchet MS", serif; font-weight: 900;
+  font-size: 98px; letter-spacing: 1px; line-height: 1;
+  /* solid gold + text-shadow bevel: repaints cleanly (no ghost trail) */
+  color: #ffdb5e;
+  text-shadow:
+    0 2px 0 #c8901f, 0 3px 0 #a06a15, 0 4px 0 #7a520e,
+    0 6px 9px rgba(0,0,0,.55);
+  animation: winTitlePop .55s cubic-bezier(.2, 1.5, .4, 1) both;
+}
+@keyframes winTitlePop {
+  0%   { transform: scale(.35); opacity: 0; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.win-plaque {
+  position: relative; overflow: hidden;
+  padding: 16px 58px; border-radius: 18px;
+  background: linear-gradient(#4a2569, #1c1030 55%, #130a24);
+  border: 4px solid #d8b45a;
+  box-shadow:
+    0 0 0 2px #6b4e1a, inset 0 2px 2px rgba(255,235,180,.28),
+    inset 0 0 24px rgba(0,0,0,.55), 0 8px 26px rgba(0,0,0,.6),
+    0 0 40px rgba(255,190,60,.3);
+  animation: winPlaqueIn .5s ease-out .12s both;
+}
+/* soft top sheen across the plaque (behind the amount text) */
+.win-plaque::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 45%; z-index: 0;
+  background: linear-gradient(rgba(255,255,255,.14), transparent);
+  pointer-events: none;
+}
+@keyframes winPlaqueIn {
+  0%   { transform: translateY(16px) scale(.9); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.win-amount {
+  position: relative; z-index: 1;
+  font-family: "Cinzel", "Trebuchet MS", serif; font-weight: 800; font-size: 62px;
+  /* solid gold + text-shadow bevel: repaints cleanly during the count-up
+     (background-clip:text ghosts under rapid text changes) */
+  color: #ffd24a;
+  -webkit-text-stroke: 2.5px #4a2b06; paint-order: stroke fill;
+  text-shadow: 0 2px 0 #b5871f, 0 3px 0 #7a520e, 0 4px 0 #5a3a08, 0 6px 7px rgba(0,0,0,.6);
+}
+
+/* portrait: keep the celebration within the narrower stage */
+.cabinet.portrait .win-title { font-size: 72px; }
+.cabinet.portrait .win-title::before { -webkit-text-stroke-width: 5px; }
+.cabinet.portrait .win-amount { font-size: 48px; }
+.cabinet.portrait .win-plaque { padding: 12px 40px; }
+.cabinet.portrait .win-glow { width: 600px; height: 600px; }
