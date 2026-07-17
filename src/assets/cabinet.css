@@ -1,3 +1,8 @@
+/* Remove the mobile/touch tap-highlight flash on every element + button focus ring */
+* { -webkit-tap-highlight-color: transparent; }
+button { -webkit-tap-highlight-color: transparent; outline: none; -webkit-touch-callout: none; }
+button:focus:not(:focus-visible) { outline: none; }
+
 /* Full-viewport letterbox: the fixed-size stage is scaled to fit. */
 .stage-fit {
   position: fixed;
