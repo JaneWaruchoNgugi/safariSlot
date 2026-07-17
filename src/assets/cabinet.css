@@ -13,7 +13,7 @@
   width: 1280px;
   height: 720px;
   transform-origin: center center;
-  background: #0b0703;
+  background: transparent;        /* let the DOM jungle backdrop show behind the transparent canvas */
   font-family: "Cinzel", "Trebuchet MS", serif;
   color: #f6e6bf;
   overflow: hidden;
@@ -26,7 +26,7 @@
   box-sizing: border-box;
   background:
     linear-gradient(rgba(28,17,6,.12), rgba(10,6,2,.34)),
-    url("./img/scene/wood.png");
+    url("./img/scene/wood.webp");
   background-size: cover; background-repeat: no-repeat; background-position: center;
   border: 2px solid #e2bf68;
   border-radius: 10px;
@@ -70,6 +70,8 @@
   width: 200px; height: auto; z-index: 7; pointer-events: none;
   filter: drop-shadow(0 5px 10px rgba(0,0,0,.8));
 }
+/* desktop: lifted with the reel frame */
+.cabinet:not(.portrait) .game-logo { top: 10px; }
 
 /* round icon controls (mute / fullscreen) top-right */
 .icon-btn {
@@ -82,14 +84,28 @@
 }
 .icon-btn:hover { filter: brightness(1.3); }
 
+/* Help + Sound buttons use the ornate gold-wood medallion background */
+.icon-btn[aria-label="how to play"],
+.icon-btn[aria-label="mute"],
+.icon-btn[aria-label="unmute"] {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: url("./img/gamesprites/icon-button.webp") center/contain no-repeat;
+  border: none; box-shadow: none; color: #ffe1a0;
+}
+.icon-btn[aria-label="how to play"] svg,
+.icon-btn[aria-label="mute"] svg,
+.icon-btn[aria-label="unmute"] svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,.85)); }
+
 /* how-to-play + sound + fullscreen grouped at the top-right corner */
 .top-controls {
   position: absolute; top: 0; right: 14px; left: auto; width: max-content;
   z-index: 8; display: flex; gap: 8px; justify-content: flex-end;
 }
 
-/* balance + lines */
-.balance-panel { position: absolute; top: 0; left: 16px; z-index: 5; width: 150px; }
+/* balance + lines — desktop: hidden top-left copy (shown in control bar instead) */
+.balance-panel { position: absolute; top: 0; left: 16px; z-index: 5; width: 168px; padding: 8px 14px; }
+.balance-panel .label { font-size: 11px; letter-spacing: 1.5px; color: #ffcf5a; }
+.balance-panel .value { font-size: 21px; color: #fff2c8; text-shadow: 0 1px 3px #000, 0 0 8px rgba(255,200,90,.3); }
 .lines-marker { position: absolute; z-index: 6; top: 44%; text-align: center; width: 40px; }
 .lines-marker.left { left: 188px; }
 .lines-marker.right { right: 188px; }
@@ -171,16 +187,18 @@
 }
 @keyframes wheelSpin { to { transform: rotate(360deg); } }
 
-/* collect-3 progress pips on the right panel */
+/* collect-3 progress pips on the right panel — sprite-based paw dots */
 .bonus-pips { display: flex; justify-content: center; gap: 10px; margin: 10px auto; }
 .bonus-pips .pip {
-  width: 20px; height: 20px; border-radius: 50%;
-  border: 2px solid #caa24a; background: radial-gradient(#241706, #120b03);
-  box-shadow: inset 0 0 6px rgba(0,0,0,.7);
+  width: 24px; height: 24px; border-radius: 0;
+  border: none;
+  background: url("./img/gamesprites/paw-dot.webp") center/contain no-repeat;
+  box-shadow: none;
 }
 .bonus-pips .pip.lit {
-  background: radial-gradient(#ffe9a8, #d4af37);
-  box-shadow: 0 0 10px rgba(255,205,90,.9);
+  background: url("./img/gamesprites/paw-dot-lit.webp") center/contain no-repeat;
+  box-shadow: none;
+  filter: drop-shadow(0 0 5px rgba(255,205,90,.9));
 }
 
 /* Safari Bonus wheel overlay */
@@ -274,12 +292,9 @@
 .control-bar {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 6;
   display: flex; align-items: center; justify-content: center; gap: 16px; padding: 13px 22px;
-  background:
-    linear-gradient(rgba(28,17,6,.42), rgba(12,7,2,.6)),
-    url("./img/scene/wood.png");
-  background-size: cover; background-repeat: no-repeat; background-position: center;
-  border-top: 3px solid #d8b45a;
-  box-shadow: inset 0 2px 0 rgba(255,233,168,.4), 0 -8px 22px rgba(0,0,0,.55);
+  background: url("./img/gamesprites/panel-wood-desktop.webp") center/cover no-repeat;
+  border-top: none;
+  box-shadow: none;
 }
 .control-bar .menu-btn { width: 44px; height: 40px; border-radius: 8px; background: linear-gradient(#241804, #120b03); border: 1px solid #caa24a; color: #e7c977; font-size: 18px; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,233,168,.25); }
 
@@ -294,7 +309,7 @@
   overflow-y: auto; padding: 22px 24px 24px;
   background:
     linear-gradient(rgba(30,18,6,.72), rgba(10,6,2,.82)),
-    url("./img/scene/wood.png");
+    url("./img/scene/wood.webp");
   background-size: cover; background-position: center;
   border: 3px solid #e2bf68; border-radius: 16px;
   box-shadow: 0 0 0 1px #6b4e1a, 0 0 50px rgba(255,190,60,.45), 0 12px 40px rgba(0,0,0,.7);
@@ -360,91 +375,205 @@
   margin: 16px 0 0; padding-top: 12px; border-top: 1px solid #6b4e1a;
   font-size: 12.5px; color: #c2a86a; text-align: center;
 }
+/* ============================================================
+   BET row, stepper, shortcuts — shared base
+   ============================================================ */
 .bet-row { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
 .bet-block { display: flex; flex-direction: column; align-items: center; }
-.bet-block .label { font-size: 10px; letter-spacing: 1px; color: #e7c977; }
+.bet-block .label { font-size: 10px; letter-spacing: 1px; color: #e7c977; text-transform: uppercase; }
 .bet-stepper { display: flex; align-items: center; gap: 8px; }
-.bet-stepper button { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(#241804, #120b03); border: 1px solid #caa24a; color: #ffe9a8; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,233,168,.25); }
-.bet-stepper button:hover:not(:disabled) { filter: brightness(1.3); }
+.bet-stepper button {
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  background: url("./img/gamesprites/btn-plus-minus.webp") center/contain no-repeat;
+  border: none;
+  color: #ffe9a8; font-size: 20px; font-weight: 900; line-height: 1;
+  box-shadow: none;
+  transition: filter .12s ease, transform .08s ease;
+  display: flex; align-items: center; justify-content: center;
+  /* dark outline + amber glow so the glyph reads boldly on the coin */
+  text-shadow: 0 0 1px #1a0e00, 0 1px 2px rgba(0,0,0,.9), 0 0 8px rgba(255,180,60,.7);
+}
+.bet-stepper button:hover:not(:disabled) { filter: brightness(1.2); transform: scale(1.06); }
+.bet-stepper button:active:not(:disabled) { transform: scale(.94); }
 .bet-stepper button:disabled { opacity: .45; cursor: not-allowed; }
-.bet-stepper .val { min-width: 54px; text-align: center; font-weight: 700; color: #ffe9a8; }
+.bet-stepper .val {
+  min-width: 60px; text-align: center; font-weight: 700; font-size: 15px; color: #ffe9a8;
+  background: rgba(0,0,0,.55); border-radius: 6px; padding: 3px 6px;
+  border: 1px solid rgba(202,162,74,.4); box-shadow: inset 0 1px 4px rgba(0,0,0,.6);
+}
 
-/* quick bet shortcuts — compact gold coin-chips next to the stepper */
+/* BET LEVEL label + chip row wrapper */
+.bet-shortcuts-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.bet-level-label {
+  font-size: 9px; letter-spacing: 1.5px; color: #d4af37; text-transform: uppercase;
+  font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,.7);
+}
+
+/* quick bet shortcuts — circular gold coin chips (sprite) */
 .bet-shortcuts { display: flex; flex: 0 0 auto; width: max-content; gap: 6px; align-items: center; }
 .bet-shortcuts button {
-  width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
-  background: radial-gradient(circle at 50% 32%, #3a2810, #1a0f04 75%);
-  border: 2px solid #caa24a; color: #ffdf9a;
-  font-size: 12.5px; font-weight: 800; letter-spacing: .2px;
-  box-shadow: inset 0 1px 0 rgba(255,233,168,.3), 0 2px 5px rgba(0,0,0,.45);
+  width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+  background: url("./img/gamesprites/chip.webp") center/contain no-repeat;
+  border: none; color: #2a1600;
+  font-size: 10px; font-weight: 900; letter-spacing: .1px;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  box-shadow: none;
   transition: filter .12s ease, transform .08s ease;
 }
-.bet-shortcuts button:hover:not(:disabled) { filter: brightness(1.35); }
+.bet-shortcuts button:hover:not(:disabled) { filter: brightness(1.25); }
 .bet-shortcuts button:active:not(:disabled) { transform: scale(.94); }
 .bet-shortcuts button.on {
-  background: radial-gradient(circle at 50% 32%, #fff2c8, #ecc768 55%, #b8892a);
-  color: #201400; border-color: #ffe9a8;
-  box-shadow: 0 0 12px rgba(255,205,90,.8), inset 0 1px 2px rgba(255,255,255,.5);
+  filter: drop-shadow(0 0 6px rgba(100,255,90,.9)) brightness(1.15);
+  color: #0a2800;
 }
 .bet-shortcuts button:disabled { opacity: .5; cursor: not-allowed; }
 
-.total-bet, .win-box { min-width: 130px; }
+/* ---- Bet history button: glossy black dome in a beveled gold ring ---- */
+.history-btn {
+  flex: 0 0 auto;
+  width: 48px; height: 48px; border-radius: 50%;
+  border: none; cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #ffe1a0;
+  background:
+    radial-gradient(circle at 50% 32%, rgba(255,255,255,.45), rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 50% 50%, #050505 0 52%, transparent 54%),
+    conic-gradient(from 218deg, #6b4a12, #f6d97a 14%, #a9761f 30%, #ffe9a8 50%, #a9761f 70%, #f6d97a 86%, #6b4a12);
+  box-shadow: 0 2px 8px rgba(0,0,0,.6), inset 0 0 6px rgba(0,0,0,.6);
+  transition: filter .12s ease, transform .08s ease;
+}
+.history-btn svg { position: relative; z-index: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,.85)); }
+.history-btn:hover { filter: brightness(1.12); }
+.history-btn:active { transform: scale(.93); }
 
-/* premium SPIN button: beveled metallic gold ring + glossy green core + chevrons */
+/* ---- Bet history modal ---- */
+.history-overlay {
+  position: absolute; inset: 0; z-index: 30;
+  background: rgba(0,0,0,.72);
+  display: flex; align-items: center; justify-content: center;
+}
+.history-modal {
+  position: relative; width: min(420px, 88%); max-height: 80%; overflow-y: auto;
+  background: linear-gradient(#2a1c08, #120b03);
+  border: 3px solid #caa24a; border-radius: 16px;
+  box-shadow: 0 0 0 1px #6b4e1a, 0 12px 44px rgba(0,0,0,.7);
+  padding: 22px 20px; color: #f0dca8;
+}
+.history-close {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(#3a2708, #160d02); border: 1px solid #caa24a; color: #e7c977;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.history-close:hover { filter: brightness(1.2); }
+.history-title { text-align: center; margin: 0 0 16px; font-size: 22px; color: #ffe9a8; letter-spacing: 1px; }
+.history-empty { text-align: center; opacity: .75; padding: 26px 8px; line-height: 1.5; }
+.history-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.history-table th {
+  color: #d4af37; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 8px 6px; border-bottom: 1px solid rgba(202,162,74,.45);
+}
+.history-table td { padding: 9px 6px; border-bottom: 1px solid rgba(255,255,255,.06); text-align: center; }
+.history-table .row-win td { color: #9be29b; }
+.history-table .row-lose td { color: #d9b48a; }
+
+.total-bet, .win-box { min-width: 120px; }
+
+/* WIN + BALANCE glass readouts — sprite stretched via background-size:100% 100% */
+.win-box, .balance-box {
+  min-width: 120px;
+  background: url("./img/gamesprites/glass-readout.webp") center/100% 100% no-repeat;
+  border: none;
+  border-radius: 0;
+  padding: 8px 18px;
+  text-align: center;
+  box-shadow: none;
+}
+.win-box .label, .balance-box .label {
+  font-size: 9px; letter-spacing: 1.5px; color: #d4af37; text-transform: uppercase;
+  font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,.8);
+}
+.win-box .value, .balance-box .value {
+  color: #ffe9a8; font-size: 16px; font-weight: 800;
+  text-shadow: 0 1px 3px #000, 0 0 8px rgba(90,200,80,.25);
+}
+/* WIN readout is a headline element — larger, brighter, warm glow */
+.win-box { min-width: 150px; }
+.win-box .value {
+  font-size: 22px; font-weight: 900; color: #fff2c8;
+  text-shadow: 0 1px 3px #000, 0 0 12px rgba(120,230,90,.5), 0 0 3px rgba(255,210,120,.6);
+}
+.win-box .label { font-size: 10px; color: #ffcf5a; }
+
+/* premium SPIN button: sprite gold ring + green dome + gold ‹ › arrows */
 .spin-btn {
   position: relative; flex-shrink: 0; box-sizing: border-box;
-  width: 108px; height: 108px; border-radius: 50%; margin: 0 16px;
-  padding: 12px; border: none; cursor: pointer;
-  background:
-    radial-gradient(circle at 50% 30%, #fff3cc 0%, #ecc768 24%, #caa24a 46%, #9a7a2c 72%, #5f4614 100%);
-  box-shadow:
-    0 0 0 2px #4a380f, 0 6px 16px rgba(0,0,0,.6),
-    inset 0 3px 4px rgba(255,255,255,.6), inset 0 -4px 7px rgba(0,0,0,.45);
+  width: 108px; height: 108px; border-radius: 50%; margin: 0 20px;
+  padding: 0; border: none; cursor: pointer;
+  background: url("./img/gamesprites/spin-button.webp") center/contain no-repeat;
+  box-shadow: none;
   display: flex; align-items: center; justify-content: center;
   transition: filter .12s ease, transform .08s ease;
   animation: spinAttract 2.1s ease-in-out infinite;
 }
 @keyframes spinAttract {
-  0%, 100% { box-shadow: 0 0 0 2px #4a380f, 0 5px 14px rgba(0,0,0,.6), 0 0 16px rgba(255,190,60,.3), inset 0 2px 3px rgba(255,255,255,.55), inset 0 -3px 6px rgba(0,0,0,.4); }
-  50%      { box-shadow: 0 0 0 2px #4a380f, 0 5px 16px rgba(0,0,0,.6), 0 0 34px rgba(255,205,90,.7), inset 0 2px 3px rgba(255,255,255,.6), inset 0 -3px 6px rgba(0,0,0,.4); }
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255,190,60,.4)); }
+  50%      { filter: drop-shadow(0 0 20px rgba(255,205,90,.85)); }
 }
 .spin-btn::before, .spin-btn::after {
   content: "›"; position: absolute; top: 50%; transform: translateY(-50%);
-  font-size: 32px; font-weight: 900; color: #ffe9a8;
-  text-shadow: 0 0 8px rgba(255,190,70,.9), 0 1px 3px #000; pointer-events: none;
+  font-size: 34px; font-weight: 900; color: #ffe9a8;
+  text-shadow: 0 0 10px rgba(255,200,70,.9), 0 1px 3px #000; pointer-events: none;
 }
-.spin-btn::before { content: "‹"; left: -22px; }
-.spin-btn::after { right: -22px; }
+.spin-btn::before { content: "‹"; left: -26px; }
+.spin-btn::after  { right: -26px; }
 .spin-core {
-  position: relative; overflow: hidden;
-  width: 84px; height: 84px; border-radius: 50%;
-  background: radial-gradient(circle at 50% 26%, #9bf25f 0%, #4fb223 40%, #2c7d16 66%, #164009 100%);
-  box-shadow:
-    inset 0 -7px 14px rgba(0,0,0,.55), inset 0 6px 12px rgba(255,255,255,.35),
-    0 0 0 2px #123c08, 0 0 0 4px #3c8a1e;
+  position: relative; overflow: visible;
+  width: 70%; height: 70%; border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  color: #f2ffe8; text-shadow: 0 1px 2px rgba(0,0,0,.75);
+  color: #f2ffe8; text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 8px rgba(0,0,0,.7);
 }
-/* glossy specular highlight on the core */
 .spin-core::before {
-  content: ""; position: absolute; top: 8%; left: 18%; right: 18%; height: 38%;
-  border-radius: 50%; z-index: 0;
-  background: radial-gradient(ellipse at 50% 40%, rgba(255,255,255,.6), rgba(255,255,255,0) 70%);
-  pointer-events: none;
+  content: none;
 }
 .spin-core .spin-label, .spin-core small { position: relative; z-index: 1; }
 .spin-label { font-weight: 900; font-size: 23px; letter-spacing: 1px; line-height: 1; }
-.spin-btn:hover:not(.spinning) { filter: brightness(1.08); }
+.spin-btn:hover:not(.spinning) { filter: brightness(1.1) drop-shadow(0 0 14px rgba(255,205,90,.7)); }
 .spin-btn:active:not(.spinning) { transform: scale(.95); }
 .spin-btn.spinning { filter: grayscale(.5) brightness(.7); animation: none; }
 .spin-btn small { display: block; margin-top: 3px; font-size: 7.5px; letter-spacing: .5px; line-height: 1.15; text-align: center; }
-.win-box .value { color: #ffe9a8; font-size: 20px; font-weight: 800; }
-.chip-btn { padding: 9px 14px; border-radius: 8px; background: linear-gradient(#241804, #130c03); border: 1px solid #caa24a; color: #e7c977; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: inset 0 1px 0 rgba(255,233,168,.22); transition: filter .12s ease; }
+
+/* TURBO + AUTO — round dark-wood chip buttons (sprite) */
+.chip-btn {
+  padding: 9px 14px; border-radius: 8px;
+  background: url("./img/gamesprites/icon-button.webp") center/contain no-repeat;
+  border: none; color: #e7c977; cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  box-shadow: none;
+  transition: filter .12s ease;
+  font-family: "Cinzel", "Trebuchet MS", serif;
+}
 .chip-btn:hover { filter: brightness(1.2); }
 .chip-btn.on {
-  background: linear-gradient(#caa24a, #8a6a1e); color: #140d03; font-weight: 800;
-  box-shadow: 0 0 12px rgba(255,205,90,.7);
+  background: url("./img/gamesprites/icon-button.webp") center/contain no-repeat;
+  color: #b0ffb0; font-weight: 800;
+  filter: drop-shadow(0 0 8px rgba(100,230,80,.8)) brightness(1.05);
 }
+/* round format for turbo/auto in desktop bar */
+.turbo-btn, .auto-btn {
+  flex-direction: column; gap: 3px;
+  width: 62px; height: 62px; border-radius: 50%; padding: 0;
+  justify-content: center; font-size: 10px;
+  box-shadow: none;
+}
+.turbo-btn span, .auto-btn span { font-size: 10px; letter-spacing: .5px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,.9); }
+.turbo-btn.on, .auto-btn.on {
+  filter: drop-shadow(0 0 10px rgba(100,230,80,.8)) brightness(1.05);
+}
+
 /* autoplay count picker */
 .auto-wrap { position: relative; }
 .auto-menu {
@@ -461,11 +590,71 @@
 .control-bar .clock { color: #b79a55; font-size: 13px; padding-left: 4px; }
 
 /* ============================================================
+   DESKTOP control bar — scoped to .cabinet:not(.portrait)
+   Single horizontal row: Turbo · Bet · BetLevel Chips · Spin · Win · Balance · Auto
+   ============================================================ */
+
+/* Balance panel lives at the top-left on desktop */
+.cabinet:not(.portrait) .balance-panel { display: block; top: 8px; left: 16px; width: 160px; z-index: 6; }
+
+/* Desktop control bar: full-width premium wood panel, single flex row */
+.cabinet:not(.portrait) .control-bar {
+  height: 128px;
+  padding: 0 28px;
+  gap: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url("./img/gamesprites/panel-wood-desktop.webp") center/cover no-repeat;
+  border-top: none;
+  box-shadow: none;
+}
+
+/* Desktop balance-box in control bar — visible */
+.cabinet:not(.portrait) .balance-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+}
+
+/* Desktop: keep bet-row horizontal */
+.cabinet:not(.portrait) .bet-row {
+  gap: 10px;
+  align-items: center;
+}
+
+/* Desktop bet-block card: framed panel sprite */
+.cabinet:not(.portrait) .bet-block {
+  background: url("./img/gamesprites/glass-readout.webp") center/100% 100% no-repeat;
+  border: none;
+  border-radius: 0;
+  padding: 8px 14px;
+  box-shadow: none;
+}
+
+/* Desktop: win displayed as column */
+.cabinet:not(.portrait) .win-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Balance moved to the top-left panel on desktop — hide the in-bar copy */
+.cabinet:not(.portrait) .balance-box { display: none; }
+
+/* Desktop: turbo/auto are the round buttons */
+.cabinet:not(.portrait) .turbo-btn,
+.cabinet:not(.portrait) .auto-btn {
+  flex-shrink: 0;
+}
+
+/* ============================================================
    Portrait / mobile layout (cabinet is 720 x 1280).
    Reels fill the width (Pixi); chrome stacks above & below.
    ============================================================ */
 .cabinet.portrait .game-logo { top: 0; width: 258px; }
-.cabinet.portrait .balance-panel { left: 14px; width: 130px; z-index: 8; }
+.cabinet.portrait .balance-panel { left: 14px; width: 158px; z-index: 8; }
 
 .cabinet.portrait .jackpot-bar { top: 186px; gap: 7px; }
 .cabinet.portrait .jackpot { min-width: 0; width: 152px; }
@@ -480,54 +669,145 @@
    (above the jackpot bar at 186), matching the landscape "under the logo" look. */
 .cabinet.portrait .free-spins-banner { top: 115px; }
 
-/* feature row just below the reels: BUY (left) · WIN (centre) · COLLECT (right) */
-/* Portrait control-bar (z-index 6) is a full-width transparent block that
-   overlaps these panels, so lift them above it to keep BUY FREE SPINS tappable. */
-.cabinet.portrait .side-panel { top: 902px; width: 168px; z-index: 7; }
-.cabinet.portrait .side-panel.left { left: 16px; }
-.cabinet.portrait .side-panel.right { right: 16px; }
-.cabinet.portrait .side-panel .headline { font-size: 13px; margin-bottom: 2px; }
-.cabinet.portrait .side-panel .sub { font-size: 10px; }
-.cabinet.portrait .buy-spins .cta { margin-top: 4px; padding: 6px; }
-.cabinet.portrait .mini-wheel { display: none; }       /* too tall for the compact row */
-.cabinet.portrait .bonus-pips { margin: 6px auto 4px; gap: 8px; }
-.cabinet.portrait .bonus-pips .pip { width: 16px; height: 16px; }
+/* ============================================================
+   Portrait (720×1280) — 3-row premium control panel
+   ROW 1 (top): Buy Free Spins (left) · WIN (center) · Safari Bonus (right)
+   ROW 2 (mid): Turbo · ‹ · SPIN · › · Auto
+   ROW 3 (bot): Bet card (left) · Bet-level chips (right)
+   ============================================================ */
 
-/* bottom control zone — transparent, children placed absolutely */
+/* Hide desktop-only balance-box inside bar on mobile */
+.cabinet.portrait .balance-box { display: none; }
+
+/* Portrait control-bar — carved wood premium panel with gold rim */
 .cabinet.portrait .control-bar {
-  top: 900px; bottom: auto; height: 380px; padding: 0;
-  background: none; border-top: none; box-shadow: none; display: block;
+  top: 700px; bottom: auto; height: 580px; padding: 0;
+  background: url("./img/gamesprites/panel-wood-mobile.webp") center top/cover no-repeat;
+  border-top: none;
+  box-shadow: none;
+  display: block;
 }
 .cabinet.portrait .control-bar .clock { display: none; }
 
+/* ---- ROW 1: Buy · Win · Safari Bonus ---- */
+
+/* Buy Free Spins — left card in row 1 (inside control-bar zone at y=900) */
+.cabinet.portrait .side-panel.left.buy-spins {
+  position: absolute; top: 948px; left: 14px;
+  width: 210px; height: 200px; min-height: 0; box-sizing: border-box; z-index: 7;
+  background:
+    url("./img/gamesprites/card-frame.webp") center/100% 100% no-repeat,
+    linear-gradient(180deg, rgba(8,5,2,0) 30%, rgba(4,3,1,.85) 100%),
+    url("./img/scene/buy-spins-lion.webp") center 22%/cover no-repeat !important;
+  border: none !important; border-radius: 14px !important;
+  padding: 0 0 14px; overflow: hidden;
+  box-shadow: none !important;
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 8px;
+}
+.cabinet.portrait .buy-spins .headline {
+  font-size: 17px; font-weight: 800; letter-spacing: .5px;
+  color: #ffdf8a; text-shadow: 0 1px 0 #6b3d0a, 0 2px 6px rgba(0,0,0,.85);
+  margin: 0 6px 8px; text-align: center; line-height: 1.1;
+}
+.cabinet.portrait .buy-spins .cta {
+  margin: 0 auto; width: 88%; display: block;
+  padding: 10px 6px; border-radius: 10px;
+  background: linear-gradient(#37b055, #10621d);
+  border: 2px solid #86e874; color: #f2fff2;
+  font-weight: 800; font-size: 16px; cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 12px rgba(90,225,100,.35);
+  text-align: center;
+}
+.cabinet.portrait .buy-spins .cta:hover:not(:disabled) { filter: brightness(1.12); }
+.cabinet.portrait .buy-spins .cta:disabled { opacity: .5; cursor: not-allowed; }
+
+/* WIN box — center of row 1 */
 .cabinet.portrait .win-box {
-  position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
-  min-width: 190px; padding: 8px 16px;
-  background: linear-gradient(#3a1c52, #1b0f2c); border-color: #a875d6;
+  position: absolute; top: 311px; left: 50%; transform: translateX(-50%);
+  min-width: 176px; padding: 8px 16px;
 }
-.cabinet.portrait .win-box .label { color: #d8b6f2; }
-.cabinet.portrait .win-box .value { font-size: 24px; }
+.cabinet.portrait .win-box .label { font-size: 10px; letter-spacing: 1.5px; color: #d4af37; }
+.cabinet.portrait .win-box .value { font-size: 22px; color: #ffe9a8; }
 
-.cabinet.portrait .spin-btn { position: absolute; top: 96px; left: 50%; transform: translateX(-50%); margin: 0; }
+/* Safari Bonus — right card in row 1 (inside control-bar zone at y=900) */
+.cabinet.portrait .side-panel.right {
+  position: absolute; top: 948px; right: 14px;
+  width: 210px; height: 200px; box-sizing: border-box; z-index: 7;
+  padding: 16px 16px 22px;
+  display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 2px;
+}
+/* enlarged card shows the spinning wheel */
+.cabinet.portrait .mini-wheel {
+  display: block; width: 74px; height: 74px; margin: 0 auto; border-width: 3px;
+}
+.cabinet.portrait .bonus-pips { gap: 12px; margin: 0 auto; }
+.cabinet.portrait .bonus-pips .pip { width: 18px; height: 18px; }
+.cabinet.portrait .side-panel.right .sub { font-size: 11px; letter-spacing: .5px; white-space: nowrap; }
+.cabinet.portrait .side-panel.right .headline { margin-bottom: 0; }
+.cabinet.portrait .side-panel.right .headline {
+  font-size: 13px; font-weight: 800; letter-spacing: 1px;
+  color: #ffdf8a; text-shadow: 0 1px 0 #6b3d0a, 0 2px 6px rgba(0,0,0,.85);
+  margin-bottom: 4px; text-align: center;
+}
+.cabinet.portrait .side-panel .sub { font-size: 10px; font-weight: 700; letter-spacing: .5px; color: #ffdf8a; text-align: center; }
+.cabinet.portrait .bonus-pips { margin: 6px auto 6px; gap: 10px; justify-content: center; }
+.cabinet.portrait .bonus-pips .pip {
+  width: 20px; height: 20px; border-width: 2px;
+  border-color: #e2bf68;
+}
+.cabinet.portrait .bonus-pips .pip.lit {
+  box-shadow: 0 0 10px rgba(255,205,90,.9);
+}
+
+/* ---- ROW 2: Turbo · ‹ SPIN › · Auto ---- */
+
+/* SPIN button */
+.cabinet.portrait .spin-btn {
+  position: absolute; top: 118px; left: 50%; transform: translateX(-50%); margin: 0;
+}
 .cabinet.portrait .spin-btn:active:not(.spinning) { transform: translateX(-50%) scale(.96); }
-.cabinet.portrait .control-bar > .chip-btn { position: absolute; top: 128px; left: 64px; }   /* TURBO */
-.cabinet.portrait .control-bar .auto-wrap { position: absolute; top: 128px; right: 64px; }   /* AUTO */
-.cabinet.portrait .control-bar > .chip-btn,
-.cabinet.portrait .control-bar .auto-wrap .chip-btn {
-  flex-direction: column; gap: 2px; width: 62px; height: 62px; border-radius: 50%;
+
+/* TURBO button */
+.cabinet.portrait .control-bar > .chip-btn.turbo-btn {
+  position: absolute; top: 142px; left: 80px;
+}
+/* AUTO wrap */
+.cabinet.portrait .control-bar .auto-wrap {
+  position: absolute; top: 142px; right: 80px;
+}
+.cabinet.portrait .control-bar > .chip-btn.turbo-btn,
+.cabinet.portrait .control-bar .auto-wrap .chip-btn.auto-btn {
+  flex-direction: column; gap: 2px;
+  width: 68px; height: 68px; border-radius: 50%; padding: 0;
   justify-content: center; font-size: 11px;
+  border-width: 2px;
 }
 
-/* BET stepper + shortcut chips as one centered row (enlarged for phones) */
+/* ---- ROW 3: Bet card + Bet-level chips — ONE full-width row, no wrap ---- */
 .cabinet.portrait .bet-row {
-  position: absolute; top: 262px; left: 50%; transform: translateX(-50%); gap: 18px;
+  position: absolute; top: 236px; left: 16px; right: 16px; transform: none;
+  width: auto; display: flex; align-items: center; justify-content: center;
+  gap: 14px; white-space: nowrap; flex-wrap: nowrap;
 }
-.cabinet.portrait .bet-block .label { font-size: 14px; margin-bottom: 4px; }
-.cabinet.portrait .bet-block .bet-stepper { gap: 12px; }
-.cabinet.portrait .bet-block .bet-stepper button { width: 48px; height: 48px; font-size: 22px; }
-.cabinet.portrait .bet-block .bet-stepper .val { min-width: 84px; font-size: 22px; }
-.cabinet.portrait .bet-shortcuts { gap: 12px; }
-.cabinet.portrait .bet-shortcuts button { width: 60px; height: 60px; font-size: 19px; border-width: 3px; }
+.cabinet.portrait .bet-block {
+  flex: 0 0 auto;
+  background: url("./img/gamesprites/glass-readout.webp") center/100% 100% no-repeat;
+  border: none; border-radius: 0; padding: 6px 10px; box-shadow: none;
+}
+.cabinet.portrait .bet-block .label { font-size: 12px; margin-bottom: 2px; }
+.cabinet.portrait .bet-block .bet-stepper { gap: 6px; }
+.cabinet.portrait .bet-block .bet-stepper button { width: 40px; height: 40px; font-size: 18px; background: url("./img/gamesprites/btn-plus-minus.webp") center/contain no-repeat; border: none; box-shadow: none; }
+.cabinet.portrait .bet-block .bet-stepper .val { min-width: 60px; font-size: 18px; }
+.cabinet.portrait .bet-shortcuts-wrap { flex: 0 0 auto; align-items: center; min-width: 0; }
+.cabinet.portrait .bet-level-label { font-size: 9px; }
+.cabinet.portrait .bet-shortcuts {
+  gap: 8px; flex-wrap: nowrap; max-width: none; justify-content: center; width: 100%;
+}
+.cabinet.portrait .bet-shortcuts button {
+  flex: 0 0 auto; width: 60px; height: 60px; aspect-ratio: 1 / 1;
+  font-size: 16px; border: none; background: url("./img/gamesprites/chip.webp") center/contain no-repeat;
+  box-shadow: none; color: #2a1600; text-shadow: 0 1px 0 rgba(255,255,255,.4);
+}
 
 /* ============================================================
    Win celebration overlay (radiant rays + 3D title + plaque)
@@ -625,3 +905,436 @@
 .cabinet.portrait .win-amount { font-size: 48px; }
 .cabinet.portrait .win-plaque { padding: 12px 40px; }
 .cabinet.portrait .win-glow { width: 600px; height: 600px; }
+
+/* ============================================================
+   DESKTOP redesign of the side panels (Buy Free Spins + Safari
+   Bonus). Scoped to .cabinet:not(.portrait) so MOBILE stays as-is.
+   ============================================================ */
+
+/* shared ornate gold frame + vertical proportions */
+.cabinet:not(.portrait) .side-panel.left.buy-spins,
+.cabinet:not(.portrait) .side-panel.right {
+  width: 168px;
+  border: none;
+  border-radius: 18px;
+  background: none;
+  box-shadow:
+    0 0 0 2px #7a5a1c,
+    0 0 0 4px #e9c877,
+    0 0 0 6px #6b4e1a,
+    0 10px 26px rgba(0,0,0,.6);
+  overflow: hidden;
+}
+
+/* ---- Buy Free Spins ---- */
+.cabinet:not(.portrait) .side-panel.left.buy-spins {
+  top: 205px;
+  min-height: 236px;
+  padding: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background:
+    url("./img/gamesprites/card-frame.webp") center/100% 100% no-repeat,
+    linear-gradient(180deg, rgba(8,5,2,0) 34%, rgba(4,3,1,.82) 100%),
+    url("./img/scene/buy-spins-lion.webp") center 20%/cover no-repeat;
+  border-radius: 14px;
+  box-shadow: none;
+  overflow: hidden;
+}
+.cabinet:not(.portrait) .buy-spins .headline {
+  margin: 0 6px 9px;
+  font-size: 19px;
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: .5px;
+  color: #ffdf8a;
+  text-shadow: 0 1px 0 #6b3d0a, 0 2px 2px rgba(0,0,0,.7), 0 3px 10px rgba(0,0,0,.9);
+}
+.cabinet:not(.portrait) .buy-spins .cta {
+  margin: 0 12px;
+  width: auto;
+  padding: 9px 6px;
+  border-radius: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  color: #f2fff2;
+  background: url("./img/gamesprites/btn-green.webp") center/100% 100% no-repeat;
+  border: none;
+  text-shadow: 0 1px 3px rgba(0,0,0,.75);
+  box-shadow: none;
+}
+.cabinet:not(.portrait) .buy-spins .cta:hover:not(:disabled) { filter: brightness(1.12); }
+
+/* ---- Safari Bonus ---- */
+.cabinet:not(.portrait) .side-panel.right {
+  top: 188px;
+  padding: 12px 10px 14px;
+  background: url("./img/gamesprites/card-frame.webp") center/100% 100% no-repeat;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+.cabinet:not(.portrait) .side-panel.right .headline {
+  font-size: 19px;
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #ffdf8a;
+  text-shadow: 0 1px 0 #6b3d0a, 0 2px 8px rgba(0,0,0,.85);
+  margin-bottom: 6px;
+}
+.cabinet:not(.portrait) .mini-wheel {
+  width: 130px;
+  height: 130px;
+  margin: 10px auto 12px;
+  border: none;
+  border-radius: 50%;
+  background: conic-gradient(from -18deg,
+    #46a63f 0 72deg, #d13f34 72deg 144deg, #7a3fb0 144deg 216deg,
+    #d9a51f 216deg 288deg, #3f7fd1 288deg 360deg);
+  box-shadow: inset 0 0 16px rgba(0,0,0,.6);
+  animation: none;              /* static ornate wheel, like the reference */
+}
+.cabinet:not(.portrait) .mini-wheel::after {
+  content: "";
+  position: absolute;
+  inset: -17px;
+  z-index: 2;
+  background: url("./img/scene/wheel-rim.webp") center/contain no-repeat;
+  pointer-events: none;
+}
+.cabinet:not(.portrait) .mini-wheel-hub {
+  width: 46px;
+  height: 46px;
+  border: none;
+  background: url("./img/scene/wheel-center.webp") center/contain no-repeat;
+  box-shadow: none;
+  z-index: 3;
+}
+.cabinet:not(.portrait) .side-panel.right .sub {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffdf8a;
+  text-shadow: 0 1px 4px rgba(0,0,0,.8);
+}
+.cabinet:not(.portrait) .bonus-pips { gap: 12px; margin: 6px auto 10px; }
+.cabinet:not(.portrait) .bonus-pips .pip {
+  width: 22px; height: 22px;
+  border: 2px solid #e9c877;
+  box-shadow: inset 0 0 6px rgba(0,0,0,.7), 0 1px 3px rgba(0,0,0,.5);
+}
+
+.lang-toggle { display: inline-flex; align-items: center; gap: 5px; padding: 0 8px; width: auto; }
+.lang-toggle .lang-code { font-size: 12px; font-weight: 800; color: #e7c977; }
+
+/* ============================================================
+   Feature splash shows the WILD / SCATTER medallion (not text)
+   ============================================================ */
+.feature-splash-img-mode {
+  background: none; border: none; box-shadow: none; padding: 0;
+  animation: featurePop .5s cubic-bezier(.2,1.5,.4,1) both;
+}
+.feature-splash-img {
+  width: 200px; height: auto; display: block; margin: 0 auto;
+  animation: featureGlowImg 1.4s ease-in-out infinite;
+}
+@keyframes featureGlowImg {
+  0%, 100% { filter: drop-shadow(0 0 18px rgba(255,205,90,.55)); transform: scale(1); }
+  50%      { filter: drop-shadow(0 0 42px rgba(255,225,120,1));  transform: scale(1.04); }
+}
+.feature-splash-img-mode .feature-splash-sub {
+  margin-top: 10px; text-align: center; color: #ffe07a; font-size: 22px;
+  font-weight: 800; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,.85);
+}
+.cabinet.portrait .feature-splash-img { width: 150px; }
+
+/* Spin label sized to fit longer localized words (mono font, e.g. sw "ZUNGUSHA") */
+.spin-label { font-size: 17px; letter-spacing: 0; }
+
+/* Bonus pips: gold-fill pop when a bonus symbol is collected (visible feedback) */
+.bonus-pips .pip { transition: background .2s ease, box-shadow .2s ease; }
+.bonus-pips .pip.lit { animation: pipCollect .5s cubic-bezier(.2,1.7,.4,1); }
+@keyframes pipCollect {
+  0%   { transform: scale(.35); box-shadow: 0 0 0 rgba(255,205,90,0); }
+  55%  { transform: scale(1.35); box-shadow: 0 0 16px rgba(255,220,110,1); }
+  100% { transform: scale(1); }
+}
+
+/* ============================================================
+   Premium language-select screen (safari sunset bg + wood panel)
+   Overrides the earlier basic .lang-* rules in mainslot.css.
+   ============================================================ */
+.lang-overlay {
+  position: fixed; inset: 0; z-index: 3000;
+  display: flex; align-items: center; justify-content: center;
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+}
+.lang-scrim {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, rgba(8,5,2,.12), rgba(5,9,3,.62) 88%);
+}
+.lang-inner {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  width: min(560px, 92vw);
+}
+.lang-logo {
+  width: min(430px, 76vw); height: auto; margin-bottom: -26px;
+  filter: drop-shadow(0 10px 22px rgba(0,0,0,.65)); z-index: 2;
+}
+.lang-modal {
+  width: 100%; box-sizing: border-box; padding: 48px 28px 24px;
+  border-radius: 22px; text-align: center;
+  background:
+    linear-gradient(180deg, rgba(40,26,10,.95), rgba(18,11,4,.97)),
+    url("./img/scene/wood.webp") center/cover;
+  border: none;
+  box-shadow:
+    0 0 0 2px #7a5a1c, 0 0 0 5px #e9c877, 0 0 0 8px #5a4113,
+    0 20px 55px rgba(0,0,0,.7), inset 0 0 44px rgba(0,0,0,.55);
+}
+.lang-welcome {
+  margin: 0; color: #ffdf8a; font-weight: 800; letter-spacing: 1px;
+  font-size: clamp(20px, 4.6vw, 30px); text-shadow: 0 2px 6px rgba(0,0,0,.85);
+}
+.lang-divider { width: 62%; height: 0; margin: 12px auto 8px; border-top: 1px solid rgba(233,200,119,.55); }
+.lang-subtitle { margin: 0 0 24px; color: #e7c977; font-size: clamp(13px, 3vw, 17px); }
+.lang-options { display: flex; flex-direction: column; gap: 16px; }
+.lang-btn {
+  display: flex; align-items: center; gap: 16px; width: 100%; box-sizing: border-box;
+  padding: 14px 18px; border-radius: 14px; cursor: pointer;
+  background: linear-gradient(180deg, #3a2c10, #1b1305);
+  border: 2px solid #d9b24e; color: #ffe9c2;
+  font-size: clamp(18px, 4.4vw, 24px); font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,233,168,.3), 0 5px 14px rgba(0,0,0,.5);
+  transition: filter .12s ease, transform .12s ease, box-shadow .12s ease;
+}
+.lang-btn:hover { filter: brightness(1.16); transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,233,168,.4), 0 8px 20px rgba(0,0,0,.55), 0 0 18px rgba(233,200,119,.4); }
+.lang-btn:active { transform: translateY(0) scale(.99); }
+.lang-flag {
+  flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; font-size: 30px; line-height: 1;
+  background: #0d0d0d; box-shadow: 0 0 0 2px #caa24a, inset 0 0 6px rgba(0,0,0,.6);
+}
+.lang-name { flex: 1 1 auto; text-align: left; }
+.lang-arrow { flex: 0 0 auto; color: #e9c877; }
+.lang-pawrule { margin: 22px auto 6px; color: #caa24a; font-size: 18px; opacity: .9; }
+.lang-footer { margin: 0; color: #cbb277; font-size: clamp(12px, 2.6vw, 14px); line-height: 1.5; }
+
+/* SPIN label: Kiswahili "ZUNGUSHA" is long for the round core — shrink it to fit
+   (no shorter accepted synonym for "spin"; the mono font otherwise clips). */
+html:lang(sw) .spin-label { font-size: 13px; letter-spacing: 0; }
+
+/* Language select: blurred safari background layer (content stays sharp) */
+.lang-overlay { background: #0a0d05; }
+.lang-bg {
+  position: absolute; inset: -24px; z-index: 0;
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  filter: blur(11px) brightness(.72) saturate(1.05);
+}
+.lang-logo { width: min(360px, 66vw); margin-bottom: -20px; }
+/* button glass tuned toward the deep olive/gold of the reference */
+.lang-btn { background: linear-gradient(180deg, #33351a, #16180a); border-color: #e0b957; }
+
+/* ============================================================
+   Safari Bonus card uses the ornate wood card art (#27); remove
+   any leftover square border/box around the collect dots.
+   ============================================================ */
+.cabinet .side-panel.right {
+  background: url("./img/gamesprites/card-wood.webp") center/100% 100% no-repeat !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
+.cabinet .side-panel.right .bonus-pips {
+  border: none !important; background: none !important; box-shadow: none !important; padding: 0 !important;
+}
+.cabinet .side-panel.right .bonus-pips .pip {
+  border: none !important; background-color: transparent !important; box-shadow: none !important;
+  background-image: url("./img/gamesprites/paw-dot.webp") !important;
+  background-size: contain !important; background-repeat: no-repeat !important; background-position: center !important;
+}
+.cabinet .side-panel.right .bonus-pips .pip.lit {
+  background-image: url("./img/gamesprites/paw-dot-lit.webp") !important;
+}
+
+/* Desktop Safari Bonus: pad content off the wood rails so all text (incl. the
+   longer Swahili strings) stays contained inside the frame. */
+.cabinet:not(.portrait) .side-panel.right {
+  width: 158px; box-sizing: border-box; padding: 16px 20px 18px; overflow: hidden !important;
+}
+.cabinet:not(.portrait) .side-panel.right .headline {
+  font-size: 13px; line-height: 1.12; letter-spacing: .5px; margin-bottom: 6px;
+}
+.cabinet:not(.portrait) .side-panel.right .sub {
+  font-size: 10px; letter-spacing: .3px; line-height: 1.15;
+}
+
+/* Spin button text: keep it centered on the green dome, short "AUTO" subtitle */
+.spin-core { gap: 0; line-height: 1; text-align: center; }
+.spin-sub { font-size: 9px; letter-spacing: 1.5px; margin-top: 3px; opacity: .95; white-space: nowrap; font-weight: 700; }
+html:lang(sw) .spin-label { font-size: 14px; }
+
+/* Bet card: center the − / value / + evenly within the frame */
+.bet-block .bet-stepper { display: flex; align-items: center; justify-content: center; }
+.bet-block .bet-stepper .val { text-align: center; }
+
+/* ---- Mobile: enlarge controls (they read too small) + keep the rows clear ---- */
+.cabinet.portrait .spin-btn { width: 128px; height: 128px; top: 108px; }
+.cabinet.portrait .spin-label { font-size: 20px; }
+html:lang(sw) .cabinet.portrait .spin-label { font-size: 15px; }
+.cabinet.portrait .control-bar > .chip-btn.turbo-btn,
+.cabinet.portrait .control-bar .auto-wrap .chip-btn.auto-btn {
+  width: 78px; height: 78px; font-size: 12px; top: 133px;
+}
+.cabinet.portrait .control-bar > .chip-btn.turbo-btn { left: 70px; }
+.cabinet.portrait .control-bar .auto-wrap { top: 133px; right: 70px; }
+.cabinet.portrait .bet-row { top: 276px; }
+.cabinet.portrait .bet-block .label { font-size: 13px; }
+.cabinet.portrait .bet-block .bet-stepper button { width: 46px; height: 46px; font-size: 20px; }
+.cabinet.portrait .bet-block .bet-stepper .val { font-size: 22px; min-width: 66px; }
+.cabinet.portrait .bet-shortcuts button { max-width: 64px; font-size: 17px; }
+.cabinet.portrait .win-box { min-width: 190px; padding: 10px 20px; }
+.cabinet.portrait .win-box .value { font-size: 34px; font-weight: 900; }
+.cabinet.portrait .win-box .label { font-size: 13px; }
+.cabinet.portrait .side-panel .headline { font-size: 15px; }
+.cabinet.portrait .side-panel .sub { font-size: 11px; }
+
+/* Bet-amount box: show the glass-readout panel as a proper wide framed card */
+.bet-block {
+  box-sizing: border-box; justify-content: center;
+  background: url("./img/gamesprites/glass-readout.webp") center/100% 100% no-repeat !important;
+}
+.cabinet:not(.portrait) .bet-block { min-width: 210px; min-height: 84px; padding: 10px 26px; }
+.cabinet.portrait .bet-block { min-width: 156px; min-height: 74px; padding: 8px 18px; }
+
+/* ============================================================
+   ROW 3 (mobile bet row) seated inside the ornate gold wood
+   plaque (card-frame-2). A ::before draws the 9-sliced frame so
+   the DAU card + chips render on top of the framed wood. The row
+   gets padding so its content clears the gold rails.
+   ============================================================ */
+.cabinet.portrait .bet-row {
+  top: 18px;                  /* ROW 1 (abs 718): bet card + level chips */
+  padding: 8px 16px;
+  gap: 12px;
+}
+/* bet-area background image removed — controls sit on the control-bar panel */
+.cabinet.portrait .bet-row::before {
+  display: none;
+}
+.cabinet.portrait .bet-row > * { position: relative; z-index: 1; }
+/* slim the controls a touch so the framed row stays within the stage foot */
+.cabinet.portrait .bet-row .bet-block { min-height: 58px; padding: 6px 14px; }
+.cabinet.portrait .bet-row .bet-block .bet-stepper button { width: 40px; height: 40px; font-size: 18px; }
+.cabinet.portrait .bet-row .bet-block .bet-stepper .val { font-size: 19px; min-width: 60px; }
+.cabinet.portrait .bet-row .bet-shortcuts button { max-width: 64px; }
+
+/* ============================================================
+   Language-select screen — premium redesign
+   (clean jungle bg, ornate wood modal, gold-trimmed choices)
+   ============================================================ */
+.lang-overlay { background: #05070c; }
+.lang-bg {
+  position: absolute; inset: -30px; z-index: 0;
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  filter: blur(13px) brightness(.48) saturate(1.1); transform: scale(1.06);
+}
+/* warm central glow + heavy edge vignette so the modal is the clear focus */
+.lang-scrim {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(120% 85% at 50% 30%, rgba(255,170,60,.12), transparent 55%),
+    radial-gradient(105% 105% at 50% 50%, rgba(4,5,9,.32), rgba(2,3,6,.88) 92%);
+}
+.lang-inner { position: relative; z-index: 1; width: min(500px, 92vw); }
+
+.lang-logo {
+  width: min(340px, 62vw); height: auto; margin-bottom: -30px; z-index: 3;
+  filter: drop-shadow(0 8px 26px rgba(0,0,0,.7)) drop-shadow(0 0 42px rgba(255,180,60,.28));
+}
+
+.lang-modal {
+  position: relative; width: 100%; box-sizing: border-box;
+  padding: 52px 30px 24px; border-radius: 24px; text-align: center;
+  background:
+    linear-gradient(180deg, rgba(48,31,12,.96), rgba(15,9,3,.98)),
+    url("./img/scene/wood.webp") center/cover;
+  border: none;
+  box-shadow:
+    0 0 0 2px #7a5a1c, 0 0 0 5px #e9c877, 0 0 0 7px #5a4113,
+    0 24px 64px rgba(0,0,0,.74),
+    inset 0 0 60px rgba(0,0,0,.6), inset 0 2px 0 rgba(255,235,180,.16);
+}
+
+.lang-welcome {
+  margin: 0; font-weight: 800; letter-spacing: 1.5px; line-height: 1.1;
+  font-size: clamp(22px, 4.6vw, 32px);
+  background: linear-gradient(#fff3bf, #ffd85a 55%, #f1b62e);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.65));
+}
+.lang-divider {
+  width: 54%; height: 2px; margin: 12px auto 8px; border: none;
+  background: linear-gradient(90deg, transparent, #e9c877, transparent);
+}
+.lang-subtitle { margin: 0 0 22px; color: #dcc48a; letter-spacing: .4px; font-size: clamp(13px, 3vw, 16px); }
+
+.lang-options { display: flex; flex-direction: column; gap: 16px; }
+.lang-btn {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 18px; width: 100%; box-sizing: border-box;
+  padding: 15px 20px; border-radius: 16px; cursor: pointer;
+  background: linear-gradient(180deg, #3c3016, #201607);
+  border: 2px solid #d9b24e; color: #ffe9c2;
+  box-shadow: inset 0 1px 0 rgba(255,233,168,.28), 0 6px 16px rgba(0,0,0,.5);
+  transition: transform .14s ease, box-shadow .14s ease, filter .14s ease, border-color .14s ease;
+}
+/* sweeping specular sheen on hover */
+.lang-btn::before {
+  content: ""; position: absolute; top: 0; left: -60%; width: 45%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,240,190,.22), transparent);
+  transform: skewX(-18deg); transition: left .55s ease; pointer-events: none;
+}
+.lang-btn:hover::before { left: 130%; }
+.lang-btn:hover {
+  filter: brightness(1.1); border-color: #ffe08a; transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255,233,168,.4), 0 10px 24px rgba(0,0,0,.55), 0 0 22px rgba(233,200,119,.45);
+}
+.lang-btn:active { transform: translateY(0) scale(.99); }
+
+.lang-flag {
+  flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1;
+  background: radial-gradient(#241a08, #0c0803);
+  box-shadow: 0 0 0 2px #e9c877, inset 0 0 8px rgba(0,0,0,.7);
+}
+.lang-name { flex: 1 1 auto; text-align: left; font-weight: 800; letter-spacing: .4px; font-size: clamp(19px, 4vw, 24px); }
+.lang-arrow {
+  flex: 0 0 auto; color: #1b1206; border-radius: 50%; padding: 4px;
+  background: linear-gradient(#ffe08a, #d9a83a);
+  box-shadow: 0 2px 6px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+.lang-pawrule { margin: 20px auto 8px; color: #caa24a; font-size: 18px; opacity: .8; }
+.lang-footer { margin: 0; color: #c2a86a; font-size: clamp(12px, 2.6vw, 14px); line-height: 1.5; }
+
+/* ============================================================
+   Desktop / landscape polish
+   - Pull the Buy + Safari side panels in toward the reel frame so
+     the layout reads as one cohesive unit (was ~166px gaps → scattered).
+   - Enlarge the SPIN button + give the bar headroom so localized
+     labels (e.g. Kiswahili "ZUNGUSHA") fit the core without cramping.
+   ============================================================ */
+.cabinet:not(.portrait) .side-panel.left.buy-spins { left: 104px; }
+.cabinet:not(.portrait) .side-panel.right { right: 104px; }
+
+.cabinet:not(.portrait) .control-bar { height: 136px; }
+.cabinet:not(.portrait) .spin-btn { width: 126px; height: 126px; }
+.cabinet:not(.portrait) .spin-core { width: 76%; }
+.cabinet:not(.portrait) .spin-label { font-size: 19px; }
+html:lang(sw) .cabinet:not(.portrait) .spin-label { font-size: 15px; }

@@ -1,23 +1,27 @@
 import "../assets/mainslot.css";
 import "../assets/cabinet.css";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSafariFortuneSnd } from "../Hooks/UseSounds/useSafariFortuneSnd.ts";
 import { PixiSlot } from "../pixi/PixiSlot.tsx";
 import { CoinShower } from "./CoinShower.tsx";
-import { JackpotBar } from "./cabinet/JackpotBar.tsx";
 import { BalancePanel } from "./cabinet/BalancePanel.tsx";
 import { BuySpinsPanel } from "./cabinet/BuySpinsPanel.tsx";
 import { SafariBonusPanel } from "./cabinet/SafariBonusPanel.tsx";
 import { ControlBar } from "./cabinet/ControlBar.tsx";
 import { FreeSpinsBanner } from "./cabinet/FreeSpinsBanner.tsx";
 import { BonusWheel } from "./cabinet/BonusWheel.tsx";
+import { LanguageToggle } from "./cabinet/LanguageToggle";
 import { HowToPlay } from "./HowToPlay.tsx";
+import { BetHistory, type BetRecord } from "./BetHistory.tsx";
 import { HelpCircle, Volume2, VolumeX, Maximize, Minimize } from "lucide-react";
 import { pickLayout } from "../pixi/layout.ts";
-import logoUrl from "../assets/img/scene/logo.png";
-import savannaLandscape from "../assets/img/scene/savanna.png";
-import savannaPortrait from "../assets/img/scene/savanna_portrait.png";
-import sunburstUrl from "../assets/img/scene/sunburst.png";
+import logoUrl from "../assets/img/scene/logo.webp";
+import savannaLandscape from "../assets/img/gamesprites/desktop-bg.webp";
+import savannaPortrait from "../assets/img/gamesprites/mobile-bg.webp";
+import sunburstUrl from "../assets/img/scene/sunburst.webp";
+import WildImg from "../assets/img/SlotItems/medallions/wild.webp";
+import ScatterImg from "../assets/img/SlotItems/medallions/scatter.webp";
 import type { PaylineResult } from "../Hooks/mapWinToCanvas.ts";
 import { spin as engineSpin, toPaylineResults } from "../game/engine.ts";
 import { formatKsh } from "../game/betDisplay.ts";
@@ -35,6 +39,7 @@ const TIMING = {
 const BIG_WIN = 1000; // autoplay stops on a win at or above this
 
 export const MainSlots = () => {
+  const { t } = useTranslation();
   const [bet, setBet] = useState<number>(5);
   const { balance, placeBet, addWin, reset } = useWallet();
   const [spinTrigger, setSpinTrigger] = useState<boolean>(false);
@@ -46,7 +51,7 @@ export const MainSlots = () => {
   const [serverReels, setServerReels] = useState<string[][]>([]);
   const [paylineResults, setPaylineResults] = useState<PaylineResult[]>([]);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const [featureSplash, setFeatureSplash] = useState<{ title: string; sub: string } | null>(null);
+  const [featureSplash, setFeatureSplash] = useState<{ img: string; sub: string } | null>(null);
   const featureTimer = useRef<number | null>(null);
   const pendingWin = useRef<number>(0);
   const pendingScatter = useRef<number>(0);
@@ -54,13 +59,16 @@ export const MainSlots = () => {
   const pendingBonus = useRef<number>(0);
   const pendingWild = useRef<boolean>(false);
   const { remaining: freeSpins, active: freeSpinsActive, grant, consume } = useFreeSpins();
-  const { values: jackpots, onSpin: jackpotSpin } = useJackpots();
+  const { onSpin: jackpotSpin } = useJackpots();
   const { collected: bonusCollected, add: addBonus } = useBonus();
   const [wheelOpen, setWheelOpen] = useState<boolean>(false);
   const [bonusPrizeIndex, setBonusPrizeIndex] = useState<number>(0);
   const [turbo, setTurbo] = useState<boolean>(false);
   const [autoRemaining, setAutoRemaining] = useState<number>(0);
   const [howToOpen, setHowToOpen] = useState<boolean>(false);
+  const [historyOpen, setHistoryOpen] = useState<boolean>(false);
+  const [history, setHistory] = useState<BetRecord[]>([]);
+  const historyId = useRef(0);
   const [shownWin, setShownWin] = useState<number>(0);
   const timing = turbo ? TIMING.turbo : TIMING.normal;
   const buyCost = buyPrice(bet);
@@ -91,8 +99,8 @@ export const MainSlots = () => {
   };
 
   // A prominent centre-stage banner for feature wins (scatter free spins, wild).
-  const showFeature = (title: string, sub: string) => {
-    setFeatureSplash({ title, sub });
+  const showFeature = (img: string, sub: string) => {
+    setFeatureSplash({ img, sub });
     if (featureTimer.current) clearTimeout(featureTimer.current);
     featureTimer.current = window.setTimeout(() => setFeatureSplash(null), 3200);
   };
@@ -105,7 +113,7 @@ export const MainSlots = () => {
     if (free) {
       consume();
     } else if (!placeBet(bet)) {
-      showToast("Insufficient balance — top up to keep playing.");
+      showToast(t("messages.insufficient"));
       return;
     }
 
@@ -134,27 +142,30 @@ export const MainSlots = () => {
       if (jackpot) {
         addWin(jackpot.amount);
         displayWin += jackpot.amount;
-        showToast(`🏆 ${jackpot.tier.toUpperCase()} JACKPOT! ${formatKsh(jackpot.amount)}`);
+        showToast(t("messages.jackpotHit", { tier: t(`jackpots.${jackpot.tier}`), amount: formatKsh(jackpot.amount) }));
         playSafariSnd("ThatsMassiveSnd");
       }
 
       if (displayWin > 0) setAmountWon(displayWin);
 
+      // Record this spin in the bet history (newest first, keep the last 50).
+      setHistory((h) => [{ id: historyId.current++, bet, win: displayWin, free }, ...h].slice(0, 50));
+
       // Autoplay stops on a big win so the player notices it.
       if (displayWin >= BIG_WIN && autoRef.current > 0) {
         setAutoRemaining(0);
-        showToast("💰 Big win — autoplay stopped.");
+        showToast(t("messages.bigWinAutoStop"));
       }
 
       // 3+ Scatters (on a paid or free spin) award/retrigger a free-spins round —
       // announce it with a prominent splash so the player sees the trigger.
       if (pendingScatter.current >= 3) {
         grant();
-        showFeature(`${FREE_SPINS_AWARD} FREE SPINS!`, `${pendingScatter.current} Scatters`);
+        showFeature(ScatterImg, `${FREE_SPINS_AWARD} ${t("messages.freeSpinsWord")}`);
         playSafariSnd("ThatsMassiveSnd");
       } else if (pendingWild.current) {
         // A Wild completed a paying line — call it out.
-        showFeature("WILD WIN!", "Wild completed a line");
+        showFeature(WildImg, t("messages.wildWinSub"));
         playSafariSnd("NiceOneSnd");
       }
 
@@ -177,10 +188,10 @@ export const MainSlots = () => {
       const amount = cashAmount(prize, bet);
       addWin(amount);
       setAmountWon(amount);
-      showToast(`🎁 Bonus win! ${formatKsh(amount)}`);
+      showToast(t("messages.bonusWin", { amount: formatKsh(amount) }));
     } else {
       grant(prize.value ?? 0);
-      showToast(`🎁 Bonus: ${prize.value} free spins!`);
+      showToast(t("messages.bonusFreeSpins", { count: prize.value }));
     }
     setWheelOpen(false);
   };
@@ -189,11 +200,11 @@ export const MainSlots = () => {
   const handleBuyFreeSpins = () => {
     if (spinTrigger || freeSpinsActive) return;
     if (!placeBet(buyCost)) {
-      showToast("Insufficient balance to buy free spins.");
+      showToast(t("messages.buyInsufficient"));
       return;
     }
     grant();
-    showToast("🎉 Free spins purchased!");
+    showToast(t("messages.buyPurchased"));
   };
 
   // Keep the latest handleSpin reachable from the auto-advance effect below
@@ -217,14 +228,14 @@ export const MainSlots = () => {
     if (spinTrigger || resultPopUp || wheelOpen || freeSpinsActive) return;
     if (balance < bet) {
       setAutoRemaining(0);
-      showToast("Autoplay stopped — top up to keep playing.");
+      showToast(t("messages.autoStopLowBal"));
       return;
     }
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setAutoRemaining((n) => (n === Infinity ? n : n - 1));
       handleSpinRef.current();
     }, turbo ? 300 : 600);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [autoRemaining, spinTrigger, resultPopUp, wheelOpen, freeSpinsActive, balance, bet, turbo]);
 
   // Count the win up from zero for a satisfying reveal.
@@ -295,10 +306,10 @@ export const MainSlots = () => {
         layout={layout}
       />
 
-      <JackpotBar values={jackpots} />
       <img className="game-logo" src={logoUrl} alt="Safari Fortunes" />
 
       <div className="top-controls">
+        <LanguageToggle />
         <button className="icon-btn" onClick={() => setHowToOpen(true)} aria-label="how to play">
           <HelpCircle size={20} />
         </button>
@@ -315,6 +326,32 @@ export const MainSlots = () => {
         onBuy={handleBuyFreeSpins}
         disabled={spinTrigger || freeSpinsActive}
       />
+      {balance < bet && (
+          <button
+              className="topup-btn"
+              style={{ position: "absolute", top: 150, left: 26, zIndex: 6 }}
+              onClick={reset}
+          >
+            Top up
+          </button>
+      )}
+
+      <ControlBar
+          bet={bet}
+          onBet={setBet}
+          amountWon={amountWon}
+          balance={balance}
+          spinTrigger={spinTrigger}
+          handleSpin={handleSpin}
+          freeSpinsActive={freeSpinsActive}
+          turbo={turbo}
+          onToggleTurbo={() => setTurbo((t) => !t)}
+          autoRemaining={autoRemaining}
+          onStartAuto={setAutoRemaining}
+          onStopAuto={() => setAutoRemaining(0)}
+          onOpenHistory={() => setHistoryOpen(true)}
+      />
+
       <SafariBonusPanel collected={bonusCollected} />
 
       <FreeSpinsBanner remaining={freeSpins} />
@@ -323,29 +360,8 @@ export const MainSlots = () => {
 
       <HowToPlay open={howToOpen} onClose={() => setHowToOpen(false)} />
 
-      {balance < bet && (
-        <button
-          className="topup-btn"
-          style={{ position: "absolute", top: 150, left: 26, zIndex: 6 }}
-          onClick={reset}
-        >
-          Top up
-        </button>
-      )}
+      <BetHistory open={historyOpen} items={history} onClose={() => setHistoryOpen(false)} />
 
-      <ControlBar
-        bet={bet}
-        onBet={setBet}
-        amountWon={amountWon}
-        spinTrigger={spinTrigger}
-        handleSpin={handleSpin}
-        freeSpinsActive={freeSpinsActive}
-        turbo={turbo}
-        onToggleTurbo={() => setTurbo((t) => !t)}
-        autoRemaining={autoRemaining}
-        onStartAuto={setAutoRemaining}
-        onStopAuto={() => setAutoRemaining(0)}
-      />
 
       {resultPopUp && amountWon > 0 && (
         <CoinShower count={amountWon >= 1000 ? 160 : amountWon > 500 ? 100 : 60} />
@@ -357,7 +373,7 @@ export const MainSlots = () => {
           <div className="win-glow" />
           <div className="win-content">
             {(() => {
-              const label = amountWon >= 1000 ? "MEGA WIN!" : amountWon > 500 ? "BIG WIN!" : "WIN!";
+              const label = amountWon >= 1000 ? t("messages.megaWin") : amountWon > 500 ? t("messages.bigWin") : t("messages.win");
               return <div className="win-title" data-text={label}>{label}</div>;
             })()}
             <div className="win-plaque">
@@ -368,8 +384,8 @@ export const MainSlots = () => {
       )}
 
       {featureSplash && (
-        <div className="feature-splash">
-          <div className="feature-splash-title">{featureSplash.title}</div>
+        <div className="feature-splash feature-splash-img-mode">
+          <img className="feature-splash-img" src={featureSplash.img} alt="" />
           <div className="feature-splash-sub">{featureSplash.sub}</div>
         </div>
       )}

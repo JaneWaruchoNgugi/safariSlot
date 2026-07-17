@@ -1,18 +1,8 @@
-import Leopard from "../assets/img/SlotItems/cc0/leopard.png";
-import Tigre from "../assets/img/SlotItems/cc0/tiger.png";
-import Elephant from "../assets/img/SlotItems/cc0/elephant.png";
-import Hippo from "../assets/img/SlotItems/cc0/hippo.png";
-import Lion from "../assets/img/SlotItems/cc0/lion.png";
-import Rhino from "../assets/img/SlotItems/cc0/rhino.png";
-
-export const symbolAssets: Record<string, string> = {
-    Leopard,
-    Tigre,
-    Hippo,
-    Lion,
-    Rhino,
-    Elephant,
-};
+// The cc0/ photo assets were removed; every symbol now renders from full
+// medallion art (see pixi/medallionAssets.ts + PixiSlot.tsx), so the circular
+// photo overlay fallback is never used. Kept empty to satisfy the import in
+// pixi/textures.ts (loadSymbolTextures) without depending on deleted files.
+export const symbolAssets: Record<string, string> = {};
 
 // ✅ Fix: convert object keys into an array first
 // const allSymbols = Object.keys(symbolAssets);

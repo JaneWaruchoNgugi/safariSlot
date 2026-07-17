@@ -21,7 +21,7 @@
     min-height: 100vh;
     width: 100%;
     overflow: hidden;
-    background-image: url("../assets/img/new/slot-bg.png");
+    background-image: url("../assets/img/new/slot-bg.webp");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -365,7 +365,7 @@
 }
 
 /*.res-background {*/
-/*    background-image: url("../assets/img/new/slot-bg.png");*/
+/*    background-image: url("../assets/img/new/slot-bg.webp");*/
 /*    background-size: cover;*/
 /*    background-position: center;*/
 /*    background-repeat: no-repeat;*/
@@ -390,7 +390,7 @@
 
 .res-border {
     border: 40px solid transparent;
-    /*border-image: url("../assets/img/slotBorder.png") 40 fill round;*/
+    /*border-image: url("../assets/img/slotBorder.webp") 40 fill round;*/
     animation: borderBreath 2.5s ease-in-out infinite;
 }
 
@@ -740,13 +740,13 @@
 
 
 .safari-poster {
-    /*background-position: center;*/
-    /*background-repeat: no-repeat;*/
-    width: 800px;
-    max-width: 1500px;
-    /*margin-top: 10px;*/
-    height: 70vh;
-    /*max-height: 500px;*/
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;      /* fill the screen, keep aspect, no stretch */
+    object-position: center;
+    z-index: 0;
 }
 
 .loading-container {
@@ -904,15 +904,13 @@
     }
 
     .safari-poster {
-        background-position: center;
-        background-repeat: no-repeat;
+        position: absolute;
+        inset: 0;
         width: 100%;
-        height: 100vh;
-        /*max-width: 600px;*/
-        /*max-height: 750px;*/
-        /*margin-top: 80px;*/
-        /*margin-top: 80px;*/
-        /*z-index: -1;!**!*/
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        z-index: 0;
     }
 
     .shortcut-btns,
@@ -1017,7 +1015,7 @@
 
 .background {
     background-image: linear-gradient(180deg, rgba(10, 5, 24, 0.72), rgba(18, 9, 34, 0.6)),
-    url("../assets/img/new/slot-bg.png");
+    url("../assets/img/new/slot-bg.webp");
 }
 
 /* Top bar */
@@ -1187,3 +1185,26 @@
     font-size: 1.1rem;
     margin-bottom: 0;
 }
+
+/* ---- language selection + toggle ---- */
+.lang-overlay {
+  position: fixed; inset: 0; z-index: 3000;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 40%, #17300f, #060d04 80%);
+}
+.lang-modal {
+  padding: 34px 38px; border-radius: 18px; text-align: center;
+  background: linear-gradient(#2a1a08, #120b03);
+  box-shadow: 0 0 0 2px #e9c877, 0 0 0 5px #6b4e1a, 0 12px 40px rgba(0,0,0,.6);
+}
+.lang-title { color: #ffdf8a; font-weight: 800; letter-spacing: 1px; margin: 0 0 22px; font-size: 24px; }
+.lang-options { display: flex; gap: 18px; }
+.lang-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  min-width: 130px; padding: 18px 20px; border-radius: 14px; cursor: pointer;
+  color: #ffe9a8; font-weight: 800; font-size: 16px;
+  background: linear-gradient(#3a2708, #180f02);
+  border: 2px solid #e2bf68; transition: filter .12s ease, transform .12s ease;
+}
+.lang-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
+.lang-flag { font-size: 40px; line-height: 1; }

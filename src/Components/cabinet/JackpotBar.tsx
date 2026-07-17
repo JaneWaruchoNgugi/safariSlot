@@ -1,21 +1,21 @@
+import { useTranslation } from "react-i18next";
+import { formatKsh } from "../../game/betDisplay";
 import type { JackpotValues } from "../../game/useJackpots";
 
-const TIERS = [
-  { key: "mini", label: "MINI" },
-  { key: "minor", label: "MINOR" },
-  { key: "major", label: "MAJOR" },
-  { key: "grand", label: "GRAND" },
-] as const;
+const TIERS = ["mini", "minor", "major", "grand"] as const;
 
 interface Props { values: JackpotValues; }
 
-export const JackpotBar = ({ values }: Props) => (
-  <div className="jackpot-bar">
-    {TIERS.map((t) => (
-      <div key={t.key} className={`plaque jackpot ${t.key}`}>
-        <div className="tier">{t.label}</div>
-        <div className="value">KSh {Math.round(values[t.key]).toLocaleString("en-US")}</div>
-      </div>
-    ))}
-  </div>
-);
+export const JackpotBar = ({ values }: Props) => {
+  const { t } = useTranslation();
+  return (
+    <div className="jackpot-bar">
+      {TIERS.map((k) => (
+        <div key={k} className={`plaque jackpot ${k}`}>
+          <div className="tier">{t(`jackpots.${k}`)}</div>
+          <div className="value">{formatKsh(Math.round(values[k])).replace(".00", "")}</div>
+        </div>
+      ))}
+    </div>
+  );
+};

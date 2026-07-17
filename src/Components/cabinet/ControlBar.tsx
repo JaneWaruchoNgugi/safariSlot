@@ -1,11 +1,13 @@
 import { type Dispatch, type SetStateAction, useRef, useState } from "react";
-import { Zap, RotateCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Zap, RotateCw, History } from "lucide-react";
 import { formatKsh } from "../../game/betDisplay";
 
 interface Props {
   bet: number;
   onBet: Dispatch<SetStateAction<number>>;
   amountWon: number;
+  balance: number;
   spinTrigger: boolean;
   handleSpin: () => void;
   freeSpinsActive?: boolean;
@@ -14,6 +16,7 @@ interface Props {
   autoRemaining?: number;
   onStartAuto?: (n: number) => void;
   onStopAuto?: () => void;
+  onOpenHistory?: () => void;
 }
 
 // Total-bet steps. Minimum stake is KSh 5 (no going lower).
@@ -23,10 +26,11 @@ const AUTO_OPTIONS: [string, number][] = [["10", 10], ["25", 25], ["50", 50], ["
 const BET_SHORTCUTS = [5, 20, 50, 100, 500];
 
 export const ControlBar = ({
-  bet, onBet, amountWon, spinTrigger, handleSpin,
+  bet, onBet, amountWon, balance, spinTrigger, handleSpin,
   freeSpinsActive = false, turbo = false, onToggleTurbo,
-  autoRemaining = 0, onStartAuto, onStopAuto,
+  autoRemaining = 0, onStartAuto, onStopAuto, onOpenHistory,
 }: Props) => {
+  const { t } = useTranslation();
   const [autoMenu, setAutoMenu] = useState(false);
   // Bet is locked while spinning or during a free-spins round.
   const betLocked = spinTrigger || freeSpinsActive;
@@ -68,9 +72,21 @@ export const ControlBar = ({
 
   return (
     <div className="control-bar">
+      {/* TURBO — left round button */}
+      <button
+        className={`chip-btn turbo-btn ${turbo ? "on" : ""}`}
+        aria-label="turbo"
+        aria-pressed={turbo}
+        onClick={onToggleTurbo}
+      >
+        <Zap size={16} />
+        <span>{t("controls.turbo")}</span>
+      </button>
+
+      {/* BET card */}
       <div className="bet-row">
         <div className="bet-block">
-          <div className="label">BET</div>
+          <div className="label">{t("controls.bet")}</div>
           <div className="bet-stepper">
             <button onClick={() => stepBet(-1)} disabled={betLocked}>−</button>
             <div className="val">{bet.toFixed(2)}</div>
@@ -78,20 +94,30 @@ export const ControlBar = ({
           </div>
         </div>
 
-        <div className="bet-shortcuts">
-          {BET_SHORTCUTS.map((v) => (
-            <button
-              key={v}
-              className={bet === v ? "on" : ""}
-              disabled={betLocked}
-              onClick={() => setBet(v)}
-            >
-              {v}
-            </button>
-          ))}
+        {/* BET LEVEL chip shortcuts */}
+        <div className="bet-shortcuts-wrap">
+          <span className="bet-level-label">{t("controls.betLevel")}</span>
+          <div className="bet-shortcuts">
+            {BET_SHORTCUTS.map((v) => (
+              <button
+                key={v}
+                className={bet === v ? "on" : ""}
+                disabled={betLocked}
+                onClick={() => setBet(v)}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Bet history — gold-ring button, opens the history modal */}
+        <button className="history-btn" aria-label="bet history" onClick={onOpenHistory}>
+          <History size={20} />
+        </button>
       </div>
 
+      {/* SPIN */}
       <button
         className={`spin-btn ${spinTrigger ? "spinning" : ""}`}
         onClick={onSpinClick}
@@ -102,29 +128,28 @@ export const ControlBar = ({
         aria-label="spin"
       >
         <span className="spin-core">
-          <span className="spin-label">{spinTrigger ? "…" : "SPIN"}</span>
-          <small>HOLD FOR<br />AUTO SPIN</small>
+          <span className="spin-label">{spinTrigger ? "…" : t("controls.spin")}</span>
+          <small className="spin-sub">{t("controls.auto")}</small>
         </span>
       </button>
 
+      {/* WIN readout */}
       <div className="plaque win-box">
-        <div className="label">Win</div>
+        <div className="label">{t("controls.win")}</div>
         <div className="value">{formatKsh(amountWon)}</div>
       </div>
 
-      <button
-        className={`chip-btn ${turbo ? "on" : ""}`}
-        aria-label="turbo"
-        aria-pressed={turbo}
-        onClick={onToggleTurbo}
-      >
-        <Zap size={16} /> TURBO
-      </button>
+      {/* BALANCE readout — only shown inside the bar on desktop; hidden on mobile via CSS */}
+      <div className="plaque balance-box">
+        <div className="label">{t("balance.title")}</div>
+        <div className="value">{formatKsh(balance).replace(".00", "")}</div>
+      </div>
 
+      {/* AUTO — right round button */}
       <div className="auto-wrap">
-        <button className={`chip-btn ${autoActive ? "on" : ""}`} aria-label="auto" onClick={clickAuto}>
+        <button className={`chip-btn auto-btn ${autoActive ? "on" : ""}`} aria-label="auto" onClick={clickAuto}>
           <RotateCw size={16} />
-          {autoActive ? (autoRemaining === Infinity ? "∞" : autoRemaining) : "AUTO"}
+          <span>{autoActive ? (autoRemaining === Infinity ? "∞" : autoRemaining) : t("controls.auto")}</span>
         </button>
         {autoMenu && !autoActive && (
           <div className="auto-menu">

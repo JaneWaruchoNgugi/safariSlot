@@ -12,16 +12,20 @@ export interface StageLayout {
 
 export const LANDSCAPE: StageLayout = {
   stageW: 1280, stageH: 720,
-  reelW: 864, reelH: 414,       // shorter so the frame clears the control bar
-  originX: 208, originY: 116,   // header band above the reels for the logo
+  // Near-square cells (colW≈rowH) so the round medallions fill each cell. Sized
+  // to fit between the header and the control bar (top at stage y≈583).
+  reelW: 580, reelH: 445,       // lifted + slightly shorter so a gap clears the bar
+  originX: 350, originY: 74,    // centred horizontally; header band for the logo
   portrait: false,
 };
 
 // Phone-shaped stage (9:16-ish). Reels fill the width; chrome stacks above/below.
 export const PORTRAIT: StageLayout = {
   stageW: 720, stageH: 1280,
-  reelW: 660, reelH: 560,
-  originX: 30, originY: 300,
+  // Sized so the ornate frame (frameW ≈ reelW×1.265) fits fully inside the 720
+  // stage width with margin, and cells stay square. Centred horizontally.
+  reelW: 560, reelH: 448,
+  originX: 80, originY: 178,
   portrait: true,
 };
 

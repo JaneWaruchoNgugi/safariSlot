@@ -1,7 +1,10 @@
 // Components/Loader.tsx
 import { useEffect, useState } from "react";
-import SafariLoaderImg from "../assets/img/new/safari-fortunes-loader.png";
-import gtLogo from "../assets/img/new/greatech_logo.png";
+import { useTranslation } from "react-i18next";
+import { preloadPixiAssets } from "../pixi/textures";
+import LoaderLandscape from "../assets/img/new/safari-loader-landscape.webp";
+import LoaderPortrait from "../assets/img/new/safari-loader-portrait.webp";
+import gtLogo from "../assets/img/new/greatech_logo.webp";
 
 type LoaderProps = {
     assets: string[];
@@ -9,9 +12,14 @@ type LoaderProps = {
 };
 
 export const Loader = ({ assets, onComplete }: LoaderProps) => {
+    const { t } = useTranslation();
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
+        // Warm Pixi's own texture cache in parallel with the byte preload below,
+        // so the reels canvas paints immediately when the game mounts.
+        preloadPixiAssets();
+
         let loaded = 0;
         const total = assets.length;
 
@@ -47,13 +55,16 @@ export const Loader = ({ assets, onComplete }: LoaderProps) => {
 
     return (
         <div className="loading-screen loader-image">
-            <img src={SafariLoaderImg} alt="safari-poster" className="safari-poster"/>
+            <picture>
+                <source media="(orientation: portrait)" srcSet={LoaderPortrait} />
+                <img src={LoaderLandscape} alt="Safari Fortunes" className="safari-poster" />
+            </picture>
             <div className="loading-container">
                 <img src={gtLogo} alt="Logo" className="gt-logo"/>
                 <div className="progress-bar">
                     <div className="progress-content" style={{width: `${progress}%`}}></div>
                 </div>
-                <p>Loading... {Math.round(progress)}</p>
+                <p>{t("loader.loading")} {Math.round(progress)}%</p>
             </div>
         </div>
     );

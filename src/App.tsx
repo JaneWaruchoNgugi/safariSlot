@@ -1,6 +1,7 @@
 import "./App.css";
 import { MainSlots } from "./Components/MainSlots.tsx";
 import { Loader } from "./Components/Loader";
+import { LanguageSelect } from "./Components/LanguageSelect";
 import { useState } from "react";
 
 // 🎵 sounds
@@ -12,28 +13,37 @@ import RollingSnd from "./Hooks/UseSounds/SafariSlotSonds/rollin-snd.mp3";
 import BackgroundSnd from "./Hooks/UseSounds/SafariSlotSonds/background-music.mp3";
 
 // 🖼️ static images (UI, logos, backgrounds)
-import SafariLoaderImg from "./assets/img/new/safari-fortunes-loader.png";
-import gtLogo from "./assets/img/new/greatech_logo.png";
-import SafariSlotLogo from "./assets/img/new/safarifortunes-logo.png";
+import SafariLoaderImg from "./assets/img/new/safari-fortunes-loader.webp";
+import gtLogo from "./assets/img/new/greatech_logo.webp";
+import SafariSlotLogo from "./assets/img/new/safarifortunes-logo.webp";
 
-// 🖼️ dynamic symbols (glob import)
-const symbolModules = import.meta.glob(
-    "./assets/img/symbols/*.{png,jpg,jpeg,webp}",
+// 🖼️ all in-game art the Pixi canvas needs — preloaded here so the reels are
+// ready the moment the game opens (medallions, backgrounds, control-bar sprites,
+// scene textures) instead of streaming in after mount.
+const gameArtModules = import.meta.glob(
+    [
+        "./assets/img/SlotItems/medallions/*.webp",
+        "./assets/img/gamesprites/*.webp",
+        "./assets/img/scene/*.webp",
+    ],
     { eager: true, import: "default" }
 );
 
 function App() {
     const [loaded, setLoaded] = useState(false);
+    const [langChosen, setLangChosen] = useState<boolean>(() => {
+        try { return !!localStorage.getItem("lang"); } catch { return false; }
+    });
 
     // flatten dynamic imports
-    const symbols = Object.values(symbolModules) as string[];
+    const gameArt = Object.values(gameArtModules) as string[];
 
     // full asset list (images + audio)
     const assets = [
         SafariLoaderImg,
         gtLogo,
         SafariSlotLogo,
-        ...symbols,
+        ...gameArt,
         RollingSnd,
         ReelStopSnd,
         WinSnd,
@@ -42,15 +52,9 @@ function App() {
         BackgroundSnd,
     ];
 
-    return (
-        <>
-            {!loaded ? (
-                <Loader assets={assets} onComplete={() => setLoaded(true)} />
-            ) : (
-                <MainSlots />
-            )}
-        </>
-    );
+    if (!loaded) return <Loader assets={assets} onComplete={() => setLoaded(true)} />;
+    if (!langChosen) return <LanguageSelect onChosen={() => setLangChosen(true)} />;
+    return <MainSlots />;
 }
 
 export default App;

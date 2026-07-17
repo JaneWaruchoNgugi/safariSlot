@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { BONUS_PRIZES } from "../../game/bonusPrizes";
-import rimUrl from "../../assets/img/scene/wheel-rim.png";
-import centerUrl from "../../assets/img/scene/wheel-center.png";
+import rimUrl from "../../assets/img/scene/wheel-rim.webp";
+import centerUrl from "../../assets/img/scene/wheel-center.webp";
 
 interface Props {
   open: boolean;
@@ -43,6 +44,7 @@ function makeBezier(x1: number, y1: number, x2: number, y2: number) {
 const ease = makeBezier(0.16, 0.84, 0.3, 1);
 
 export const BonusWheel = ({ open, prizeIndex, onCollect }: Props) => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [landed, setLanded] = useState(false);
 
@@ -216,7 +218,7 @@ export const BonusWheel = ({ open, prizeIndex, onCollect }: Props) => {
   return (
     <div className="bonus-overlay">
       <div className="bonus-modal">
-        <h2 className="bonus-title">SAFARI BONUS</h2>
+        <h2 className="bonus-title">{t("bonus.title")}</h2>
 
         <div className="wheel-wrap">
           <canvas ref={canvasRef} className="wheel-canvas" style={{ width: SIZE, height: SIZE }} />
@@ -224,13 +226,13 @@ export const BonusWheel = ({ open, prizeIndex, onCollect }: Props) => {
 
         {landed ? (
           <>
-            <div className="bonus-result">You won <b>{prize.label}</b>!</div>
+            <div className="bonus-result">{t("bonus.youWon")} <b>{prize.label}</b>!</div>
             <button className="bonus-collect" onClick={() => onCollect(prizeIndex)}>
-              COLLECT
+              {t("bonus.collect")}
             </button>
           </>
         ) : (
-          <div className="bonus-spinning">Spinning…</div>
+          <div className="bonus-spinning">{t("bonus.spinning")}</div>
         )}
       </div>
     </div>

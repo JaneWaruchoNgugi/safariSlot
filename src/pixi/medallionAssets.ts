@@ -1,12 +1,12 @@
-import Lion from "../assets/img/SlotItems/medallions/lion.png";
-import Tigre from "../assets/img/SlotItems/medallions/tiger.png";
-import Leopard from "../assets/img/SlotItems/medallions/leopard.png";
-import Elephant from "../assets/img/SlotItems/medallions/elephant.png";
-import Rhino from "../assets/img/SlotItems/medallions/rhino.png";
-import Hippo from "../assets/img/SlotItems/medallions/hippo.png";
-import Wild from "../assets/img/SlotItems/medallions/wild.png";
-import Scatter from "../assets/img/SlotItems/medallions/scatter.png";
-import Bonus from "../assets/img/SlotItems/medallions/bonus.png";
+import Lion from "../assets/img/SlotItems/medallions/lion.webp";
+import Tigre from "../assets/img/SlotItems/medallions/tiger.webp";
+import Leopard from "../assets/img/SlotItems/medallions/leopard.webp";
+import Elephant from "../assets/img/SlotItems/medallions/elephant.webp";
+import Rhino from "../assets/img/SlotItems/medallions/rhino.webp";
+import Hippo from "../assets/img/SlotItems/medallions/hippo.webp";
+import Wild from "../assets/img/SlotItems/medallions/wild.webp";
+import Scatter from "../assets/img/SlotItems/medallions/scatter.webp";
+import Bonus from "../assets/img/SlotItems/medallions/bonus.webp";
 
 // Complete gold-medallion art per symbol (includes the gold ring + backing +
 // painted animal). Symbols not listed here fall back to a generated medallion

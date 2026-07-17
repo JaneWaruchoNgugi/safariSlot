@@ -1,5 +1,6 @@
-import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
+import { Application, Container, Graphics, Sprite, Texture, TilingSprite } from "pixi.js";
 import { COLS, ROWS, transposeReels } from "./reelLayout";
+import { makeEnergyStrip, makeIdleDivider } from "./textures";
 import type { PaylineResult } from "../Hooks/mapWinToCanvas";
 
 export interface ReelAssets {
@@ -100,6 +101,54 @@ export function createReelsView(
     root.addChild(colRoot);
     columns.push({ root: colRoot, cells, symbols: new Array(N).fill(""), scroll: 0, spinning: false, stopAt: 0, speed: 0, bounce: 0 });
   }
+
+  // --- reel dividers between the columns ---
+  // Each internal seam gets two layers: a calm static "idle" divider shown when
+  // the reels are at rest, and an animated "electric current" strip that fades in
+  // and flows while any reel is spinning. They cross-fade on spin start/stop.
+  const energyTex = makeEnergyStrip();
+  const idleTex = makeIdleDivider();
+  const dividerW = Math.max(12, colW * 0.13);
+  const active: TilingSprite[] = [];
+  const idle: Sprite[] = [];
+  const IDLE_LEVEL = 0.55;          // resting brightness of the idle divider
+  for (let c = 1; c < COLS; c++) {
+    const x = originX + c * colW - dividerW / 2;
+    const idleBar = new Sprite(idleTex);
+    idleBar.x = x;
+    idleBar.y = originY;
+    idleBar.width = dividerW;
+    idleBar.height = winHeight;
+    idleBar.blendMode = "add";
+    idleBar.alpha = IDLE_LEVEL;
+    root.addChild(idleBar);
+    idle.push(idleBar);
+
+    const d = new TilingSprite({ texture: energyTex, width: dividerW, height: winHeight });
+    d.x = x;
+    d.y = originY;
+    d.tileScale.set(dividerW / energyTex.width, 1); // glow spans the divider width
+    d.blendMode = "add";                            // additive glow
+    d.alpha = 0;
+    d.visible = false;
+    root.addChild(d);
+    active.push(d);
+  }
+  let activeAlpha = 0;
+  const dividerTicker = (t: { deltaMS: number }) => {
+    const target = columns.some((col) => col.spinning) ? 1 : 0;
+    activeAlpha += (target - activeAlpha) * Math.min(1, t.deltaMS / 110);
+    const visible = activeAlpha > 0.01;
+    for (const d of active) {
+      d.visible = visible;
+      d.alpha = activeAlpha;
+      if (visible) d.tilePosition.y += t.deltaMS * 0.9; // downward flow speed
+    }
+    // idle dims out as the active current takes over, and returns at rest
+    for (const b of idle) b.alpha = IDLE_LEVEL * (1 - activeAlpha);
+  };
+  app.ticker.add(dividerTicker);
+
   root.addChild(overlay);
 
   function paintCell(sc: StripCell, name: string) {
